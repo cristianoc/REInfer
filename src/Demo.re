@@ -59,9 +59,10 @@ let testBigDiff = {
   let (stypA1, stypA2, stypB) = diffCheck(styp1, styp2);
   /* Js.log2("styp1", styp1 |. PrettyPrint.styp);
      Js.log2("styp2", styp2 |. PrettyPrint.styp); */
-  Js.log2("stypA1", stypA1 |. PrettyPrint.styp);
-  Js.log2("stypA2", stypA2 |. PrettyPrint.styp);
-  Js.log2("stypB", stypB |. PrettyPrint.styp);
+  Js.log2("{\"stypA1\":", stypA1 |. PrettyPrint.styp);
+  Js.log2(",\"stypA2\":", stypA2 |. PrettyPrint.styp);
+  Js.log2(",\"stypB\":", stypB |. PrettyPrint.styp);
+  Js.log("}");
 };
 
 testBigDiff;
