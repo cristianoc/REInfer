@@ -12,4 +12,4 @@ ReactDOMRe.renderToElementWithId(
   "main",
 );
 
-Js.log("TODO");
+Demo.test();
