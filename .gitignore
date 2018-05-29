@@ -3,3 +3,5 @@
 /src/*.bs.js
 /.merlin
 /lib
+/build/Index.js
+/.bsb.lock

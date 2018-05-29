@@ -30,7 +30,7 @@ let stypIsSame = styp =>
 module PrettyPrint = {
   let simpleNull = true;
   let simpleEmptyArray = true;
-  let skip100Percent = false;
+  let skip100Percent = true;
   let skip0OutOf0 = true;
   let percent = false;
 

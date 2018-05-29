@@ -53,7 +53,7 @@ let testSmallDiff = () => {
   Js.log2("stypB ++ stypA2", stypB ++ stypA2 |. PrettyPrint.styp);
 };
 
-let testBigDiff = () => {
+let testBigDiff = {
   let styp1 = Lazy.force(bronze);
   let styp2 = Lazy.force(platinum);
   let (stypA1, stypA2, stypB) = diffCheck(styp1, styp2);
@@ -64,5 +64,5 @@ let testBigDiff = () => {
   Js.log2("stypB", stypB |. PrettyPrint.styp);
 };
 
-
-let test = () => testBigDiff();
+testBigDiff;
+let test = () => ();
