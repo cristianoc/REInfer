@@ -1,17 +1,10 @@
 module Main = {
   let component = ReasonReact.statelessComponent("Page");
 
-  let make = (~message, _children) => {
+  let make = _children => {
     ...component,
-    render: _self =>
-      <div>
-        (ReasonReact.string(message))
-        (Demo.test() |. UI.toComponent(~ctx=None))
-      </div>,
+    render: _self => <div> (Demo.test() |. UI.toComponent(~ctx=None)) </div>,
   };
 };
 
-ReactDOMRe.renderToElementWithId(
-  <Main message="Check the console" />,
-  "main",
-);
+ReactDOMRe.renderToElementWithId(<Main />, "main");
