@@ -63,7 +63,8 @@ let testBigDiff = {
   Js.log2(",\"stypA2\":", stypA2 |. PrettyPrint.styp);
   Js.log2(",\"stypB\":", stypB |. PrettyPrint.styp);
   Js.log("}");
+  styp1;
 };
 
-testBigDiff;
-let test = () => ();
+let res = testBigDiff;
+let test = () => res;
