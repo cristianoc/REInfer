@@ -1,4 +1,4 @@
-open! StatisticalTypeChecking;
+open! Typecheck;
 
 let testSmall = () => {
   /* let small = Js.Json.parseExn({| [{"x": "hello"}, {"x":null, "y":0}] |}); */
