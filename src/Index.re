@@ -3,7 +3,10 @@ module Main = {
 
   let make = _children => {
     ...component,
-    render: _self => <div> (Demo.test() |. UI.toComponent(~ctx=None)) </div>,
+    render: _self => {
+      let diff = Demo.test();
+      <div> <UI.Diff diff /> </div>;
+    },
   };
 };
 

@@ -43,7 +43,7 @@ let testSmallDiff = () => {
      let styp2 = {| 3 |} |. Js.Json.parseExn |. Styp.fromJson; */
   let styp1 = {| [null,2] |} |. Js.Json.parseExn |. fromJson;
   let styp2 = {| [3] |} |. Js.Json.parseExn |. fromJson;
-  let (stypA1, stypA2, stypB) = diffCheck(styp1, styp2);
+  let {stypA1, stypA2, stypB} = diffCheck(styp1, styp2);
   Js.log2("styp1", styp1 |. PrettyPrint.styp);
   Js.log2("styp2", styp2 |. PrettyPrint.styp);
   Js.log2("stypA1", stypA1 |. PrettyPrint.styp);
@@ -56,14 +56,14 @@ let testSmallDiff = () => {
 let testBigDiff = {
   let styp1 = Lazy.force(bronze);
   let styp2 = Lazy.force(platinum);
-  let (stypA1, stypA2, stypB) = diffCheck(styp1, styp2);
+  let d = diffCheck(styp1, styp2);
   /* Js.log2("styp1", styp1 |. PrettyPrint.styp);
      Js.log2("styp2", styp2 |. PrettyPrint.styp); */
-  Js.log2("{\"stypA1\":", stypA1 |. PrettyPrint.styp);
-  Js.log2(",\"stypA2\":", stypA2 |. PrettyPrint.styp);
-  Js.log2(",\"stypB\":", stypB |. PrettyPrint.styp);
+  Js.log2("{\"stypA1\":", d.stypA1 |. PrettyPrint.styp);
+  Js.log2(",\"stypA2\":", d.stypA2 |. PrettyPrint.styp);
+  Js.log2(",\"stypB\":", d.stypB |. PrettyPrint.styp);
   Js.log("}");
-  stypA1;
+  d;
 };
 
 let res = testBigDiff;

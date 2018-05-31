@@ -152,7 +152,15 @@ let abduceCheck = (styp1, styp2) => {
 };
 let (--) = (styp2, styp1) => abduceCheck(styp1, styp2);
 
-let rec diff = (styp1: styp, styp2: styp) : (styp, styp, styp) => {
+type diff = {
+  styp1: styp,
+  styp2: styp,
+  stypA1: styp,
+  stypA2: styp,
+  stypB: styp,
+};
+
+let rec diff = (styp1: styp, styp2: styp) : diff => {
   let (tA1, tA2, tB) = diffT(styp1.t, styp2.t);
   let (oA1, oA2, oB) = diffO(styp1.o, styp2.o);
   let pB = min(styp1.p, styp2.p);
@@ -160,7 +168,7 @@ let rec diff = (styp1: styp, styp2: styp) : (styp, styp, styp) => {
   let stypA1 = {t: tA1, o: oA1, p: pA1};
   let stypA2 = {t: tA2, o: oA2, p: pA2};
   let stypB = {t: tB, o: oB, p: pB};
-  (stypA1, stypA2, stypB);
+  {styp1, styp2, stypA1, stypA2, stypB};
 }
 and diffT = (t1: t, t2: t) : (t, t, t) =>
   switch (t1, t2) {
@@ -182,7 +190,7 @@ and diffT = (t1: t, t2: t) : (t, t, t) =>
           dA2 |. Js.Dict.set(lbl, styp2);
         }
       | Some(styp1) =>
-        let (stypA1, stypA2, stypB) = diff(styp1, styp2);
+        let {stypA1, stypA2, stypB} = diff(styp1, styp2);
         if (! stypIsSame(stypA1)) {
           dA1 |. Js.Dict.set(lbl, stypA1);
         };
@@ -209,7 +217,7 @@ and diffT = (t1: t, t2: t) : (t, t, t) =>
     (tA1, tA2, tB);
 
   | (Array(styp1), Array(styp2)) =>
-    let (stypA1, stypA2, stypB) = diff(styp1, styp2);
+    let {stypA1, stypA2, stypB} = diff(styp1, styp2);
     let tA1 = stypIsSame(stypA1) ? Same : Array(stypA1);
     let tA2 = stypIsSame(stypA2) ? Same : Array(stypA2);
     let tB = Array(stypB);
@@ -224,8 +232,8 @@ and diffO = (o1: o, o2: o) : (o, o, o) =>
   };
 
 let diffCheck = (styp1, styp2) => {
-  let (stypA1, stypA2, stypB) = diff(styp1, styp2);
-  assert(stypB ++ stypA1 == styp1);
-  assert(stypB ++ stypA2 == styp2);
-  (stypA1, stypA2, stypB);
+  let d = diff(styp1, styp2);
+  assert(d.stypB ++ d.stypA1 == styp1);
+  assert(d.stypB ++ d.stypA2 == styp2);
+  d;
 };
