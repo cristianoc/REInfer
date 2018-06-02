@@ -1,59 +1,94 @@
 open Belt;
 open Styp;
 
-let s = x => <div> (ReasonReact.string(x)) </div>;
+module Key = {
+  let counter = ref(0);
+  let gen = () => {
+    incr(counter);
+    string_of_int(counter^);
+  };
+};
+
+module TreeView = {
+  type state = {collapsed: bool};
+  type actions =
+    | Click;
+  let component = ReasonReact.reducerComponent("TreeView");
+  let make = (~nodeLabel, ~collapsed, children) => {
+    ...component,
+    initialState: () => {collapsed: collapsed},
+    reducer: (action, state) =>
+      switch (action) {
+      | Click => Update({collapsed: ! state.collapsed})
+      },
+    render: ({state: {collapsed}, send}) => {
+      let arrowClassName =
+        "tree-view_arrow" ++ (collapsed ? " tree-view_arrow-collapsed" : "");
+      let containerClassName =
+        "tree-view_children"
+        ++ (collapsed ? " tree-view_children-collapsed" : "");
+
+      <div className="tree-view ">
+        <div className="tree-view_item  " onClick=(_ => send(Click))>
+          <div className=arrowClassName />
+          <span> nodeLabel </span>
+        </div>
+        <div className=containerClassName>
+          (collapsed ? ReasonReact.null : ReasonReact.array(children))
+        </div>
+      </div>;
+    },
+  };
+};
+
+let node = x => <span className="node"> (ReasonReact.string(x)) </span>;
 
 let questionMark =
-  <div style=(ReactDOMRe.Style.make(~color="red", ()))>
-    (ReasonReact.string("?"))
-  </div>;
+  <span style=(ReactDOMRe.Style.make(~color="red", ()))>
+    (ReasonReact.string(" ? "))
+  </span>;
 
 let rec toComponent =
         (styp: styp, ~ctx: option(p))
         : ReasonReact.reactElement => {
   let ctxZero = ctx == None || ctx == Some(0);
-  let color = ctxZero ? "grey" : "black";
+  let color = ctxZero ? "grey" : stypIsNull(styp) ? "red" : "black";
   let p =
     styp.p == 0 || styp.p == 1 ?
       ReasonReact.null :
-      <div style=(ReactDOMRe.Style.make(~color="green", ()))>
+      <span style=(ReactDOMRe.Style.make(~color="green", ()))>
         (ReasonReact.string("+" ++ string_of_int(styp.p)))
-      </div>;
+      </span>;
+  let o = styp.o == Opt ? questionMark : ReasonReact.null;
+  let t = styp.t |. toComponentT(~ctx=Some(styp.p));
   let style = ReactDOMRe.Style.make(~color, ());
   stypIsNull(styp) ?
-    <div style> (ReasonReact.string("null")) </div> :
-    <div style>
-      (styp.o == Opt ? questionMark : ReasonReact.null)
-      p
-      (styp.t |. toComponentT(~ctx=Some(styp.p)))
-    </div>;
+    <div style className="node"> (ReasonReact.string("null")) </div> :
+    <div style> p o t </div>;
 }
 and toComponentT = (t: t, ~ctx: option(p)) : ReasonReact.reactElement =>
   switch (t) {
-  | Same => s("same")
-  | Number => s("number")
-  | String => s("string")
-  | Boolean => s("boolean")
+  | Same => node("same")
+  | Number => node("number")
+  | String => node("string")
+  | Boolean => node("boolean")
   | Object(d) =>
-    let doEntry = ((lbl, styp)) =>
-      <div>
-        (s(lbl))
-        <div style=(ReactDOMRe.Style.make(~marginLeft="20px", ()))>
-          (styp |. toComponent(~ctx))
-        </div>
-      </div>;
-    <div>
-      (ReasonReact.array(Js.Dict.entries(d) |. Array.map(doEntry)))
-    </div>;
-  | Array(styp) when stypIsSame(styp) => s("[]")
-  | Array(styp) =>
-    <div>
-      (s("["))
-      <div style=(ReactDOMRe.Style.make(~marginLeft="20px", ()))>
+    let doEntry = (i, (lbl, styp)) =>
+      <TreeView key=(string_of_int(i)) nodeLabel=(node(lbl)) collapsed=false>
         (styp |. toComponent(~ctx))
-      </div>
-      (s("]"))
-    </div>
+      </TreeView>;
+
+    <div>
+      (ReasonReact.array(Js.Dict.entries(d) |. Array.mapWithIndex(doEntry)))
+    </div>;
+  | Array(styp) when stypIsSame(styp) => node("[]")
+  | Array(styp) =>
+    <span>
+      <TreeView nodeLabel=(node("[")) collapsed=false>
+        (styp |. toComponent(~ctx))
+      </TreeView>
+      (node("]"))
+    </span>
   };
 
 module Styp = {
@@ -75,13 +110,7 @@ module Styp = {
           style=(ReactDOMRe.Style.make(~height="50px", ~width="200px", ()))>
           (ReasonReact.string(name))
         </button>
-        (
-          visible ?
-            <div style=(ReactDOMRe.Style.make(~marginLeft="20px", ()))>
-              (styp |. toComponent(~ctx=None))
-            </div> :
-            ReasonReact.null
-        )
+        (visible ? styp |. toComponent(~ctx=None) : ReasonReact.null)
       </div>,
   };
 };
