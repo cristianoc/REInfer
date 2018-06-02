@@ -52,9 +52,10 @@ let rec toComponent =
         (styp: styp, ~ctx: option(p))
         : ReasonReact.reactElement => {
   let ctxZero = ctx == None || ctx == Some(0);
-  let color = ctxZero ? "grey" : stypIsNull(styp) ? "red" : "black";
+  let pUnchanged = ctxZero && styp.p == 0;
+  let color = stypIsNull(styp) ? "red" : pUnchanged ? "grey" : "black";
   let p =
-    styp.p == 0 || styp.p == 1 ?
+    pUnchanged || styp.p == 1 ?
       ReasonReact.null :
       <span style=(ReactDOMRe.Style.make(~color="green", ()))>
         (ReasonReact.string("+" ++ string_of_int(styp.p)))
@@ -92,26 +93,13 @@ and toComponentT = (t: t, ~ctx: option(p)) : ReasonReact.reactElement =>
   };
 
 module Styp = {
-  type state = {visible: bool};
-  type actions =
-    | Click;
-  let component = ReasonReact.reducerComponent("Styp");
+  let component = ReasonReact.statelessComponent("Styp");
   let make = (~name, ~styp, _) => {
     ...component,
-    initialState: () => {visible: false},
-    reducer: (action, state) =>
-      switch (action) {
-      | Click => Update({visible: ! state.visible})
-      },
-    render: ({send, state: {visible}}) =>
-      <div>
-        <button
-          onClick=(_ => send(Click))
-          style=(ReactDOMRe.Style.make(~height="50px", ~width="200px", ()))>
-          (ReasonReact.string(name))
-        </button>
-        (visible ? styp |. toComponent(~ctx=None) : ReasonReact.null)
-      </div>,
+    render: _ =>
+      <TreeView nodeLabel=(node(name)) collapsed=true>
+        (styp |. toComponent(~ctx=None))
+      </TreeView>,
   };
 };
 
