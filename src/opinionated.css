@@ -32,3 +32,20 @@
 .tree-view_arrow-empty {
   color: yellow;
 }
+
+.column1 {
+  float: right;
+  width: 75%;
+}
+
+.column2 {
+  float: left;
+  width: 50%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}

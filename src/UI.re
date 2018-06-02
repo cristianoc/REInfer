@@ -43,62 +43,81 @@ module TreeView = {
 
 let node = x => <span className="node"> (ReasonReact.string(x)) </span>;
 
+let baseType = x =>
+  <span className="node" style=(ReactDOMRe.Style.make(~color="orange", ()))>
+    (ReasonReact.string(x))
+  </span>;
+
 let questionMark =
   <span style=(ReactDOMRe.Style.make(~color="red", ()))>
     (ReasonReact.string(" ? "))
   </span>;
 
+type fmt = {
+  plus: bool /* print '+' in front of number */,
+  percent: bool /* show percentage instead of absolute numbers */,
+  same: bool /* print same */
+};
+
+let fmtDefault = {plus: false, percent: true, same: false};
+let fmtDelta = {plus: true, percent: false, same: true};
+
 let rec toComponent =
-        (styp: styp, ~ctx: option(p))
+        (styp: styp, ~ctx: p, ~fmt: fmt)
         : ReasonReact.reactElement => {
-  let ctxZero = ctx == None || ctx == Some(0);
-  let pUnchanged = ctxZero && styp.p == 0;
+  let pUnchanged = ctx == 0 && styp.p == 0;
   let color = stypIsNull(styp) ? "red" : pUnchanged ? "grey" : "black";
+  let pString =
+    if (fmt.percent && ctx != 0) {
+      float_of_int(styp.p) /. float_of_int(ctx) |. string_of_float;
+    } else {
+      (fmt.plus ? "+" : "") ++ string_of_int(styp.p);
+    };
   let p =
     pUnchanged || styp.p == 1 ?
       ReasonReact.null :
       <span style=(ReactDOMRe.Style.make(~color="green", ()))>
-        (ReasonReact.string("+" ++ string_of_int(styp.p)))
+        (ReasonReact.string(pString))
       </span>;
   let o = styp.o == Opt ? questionMark : ReasonReact.null;
-  let t = styp.t |. toComponentT(~ctx=Some(styp.p));
+  let t = styp.t |. toComponentT(~ctx=styp.p, ~fmt);
   let style = ReactDOMRe.Style.make(~color, ());
   stypIsNull(styp) ?
     <div style className="node"> (ReasonReact.string("null")) </div> :
     <div style> p o t </div>;
 }
-and toComponentT = (t: t, ~ctx: option(p)) : ReasonReact.reactElement =>
+and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   switch (t) {
-  | Same => node("same")
-  | Number => node("number")
-  | String => node("string")
-  | Boolean => node("boolean")
+  | Same => baseType(fmt.same ? "same" : "empty")
+  | Number => baseType("number")
+  | String => baseType("string")
+  | Boolean => baseType("boolean")
   | Object(d) =>
     let doEntry = (i, (lbl, styp)) =>
       <TreeView key=(string_of_int(i)) nodeLabel=(node(lbl)) collapsed=false>
-        (styp |. toComponent(~ctx))
+        (styp |. toComponent(~ctx, ~fmt))
       </TreeView>;
 
     <div>
       (ReasonReact.array(Js.Dict.entries(d) |. Array.mapWithIndex(doEntry)))
     </div>;
-  | Array(styp) when stypIsSame(styp) => node("[]")
+  | Array(styp) when stypIsSame(styp) => baseType("[]")
   | Array(styp) =>
     <span>
-      <TreeView nodeLabel=(node("[")) collapsed=false>
-        (styp |. toComponent(~ctx))
+      <TreeView nodeLabel=(baseType("[")) collapsed=false>
+        (styp |. toComponent(~ctx, ~fmt))
       </TreeView>
-      (node("]"))
+      (baseType("]"))
     </span>
   };
 
 module Styp = {
   let component = ReasonReact.statelessComponent("Styp");
-  let make = (~name, ~styp, _) => {
+  let make = (~name, ~styp, ~fmt=fmtDefault, _) => {
     ...component,
     render: _ =>
       <TreeView nodeLabel=(node(name)) collapsed=true>
-        (styp |. toComponent(~ctx=None))
+        (styp |. toComponent(~ctx=0, ~fmt))
       </TreeView>,
   };
 };
@@ -109,11 +128,23 @@ module Diff = {
     ...component,
     render: _ =>
       <div>
-        <Styp styp=diff.stypA1 name="stypA1" />
-        <Styp styp=diff.stypA2 name="stypA2" />
-        <Styp styp=diff.stypB name="stypB" />
-        <Styp styp=diff.styp1 name="styp1" />
-        <Styp styp=diff.styp2 name="styp2" />
+        <div className="row">
+          <div className="column2">
+            <Styp styp=diff.styp1 name="styp1" />
+          </div>
+          <div className="column2">
+            <Styp styp=diff.styp2 name="styp2" />
+          </div>
+        </div>
+        <div className="column1"> <Styp styp=diff.stypB name="stypB" /> </div>
+        <div className="row">
+          <div className="column2">
+            <Styp name="stypA1" styp=diff.stypA1 fmt=fmtDelta />
+          </div>
+          <div className="column2">
+            <Styp name="stypA2" styp=diff.stypA2 fmt=fmtDelta />
+          </div>
+        </div>
       </div>,
   };
 };
