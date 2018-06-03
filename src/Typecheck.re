@@ -1,6 +1,13 @@
 open Belt;
 open Styp;
 
+let typesNotMatched = (t1, t2) => {
+  let d = Js.Dict.empty();
+  d |. Js.Dict.set("TypeErr lhs", {t: t1, o: NotOpt, p: 0});
+  d |. Js.Dict.set("TypeErr rhs", {t: t2, o: NotOpt, p: 0});
+  Object(d |. Js.Dict.entries |. Js.Dict.fromArray);
+};
+
 let rec fromJson = (json: Js.Json.t) : styp =>
   switch (Js.Json.classify(json)) {
   | JSONFalse
@@ -34,7 +41,7 @@ and (++) = (styp1, styp2) => {
   let p = styp1.p + styp2.p;
   {t, o, p};
 }
-and plusT = (t1, t2) =>
+and plusT = (t1, t2) => {
   switch (t1, t2) {
   | (Same, t)
   | (t, Same) => t
@@ -54,31 +61,16 @@ and plusT = (t1, t2) =>
   | (Array(styp1), Array(styp2)) =>
     let styp = styp1 ++ styp2;
     styp |. Array;
-  | (Number, _) =>
-    Js.log("++ TODO: Number Left");
-    assert(false);
-  | (_, Number) =>
-    Js.log("++ TODO: Number Right");
-    assert(false);
-  | (String, _) =>
-    Js.log("++ TODO: String Left");
-    assert(false);
-  | (_, String) =>
-    Js.log("++ TODO: String Right");
-    assert(false);
-  | (Boolean, _) =>
-    Js.log("++ TODO: Boolean Left");
-    assert(false);
-  | (_, Boolean) =>
-    Js.log("++ TODO: Boolean Right");
-    assert(false);
-  | (Object(_), _) =>
-    Js.log("++ TODO: Object Left");
-    assert(false);
-  | (_, Object(_)) =>
-    Js.log("++ TODO: Object Right");
-    assert(false);
+  | (Number, _)
+  | (_, Number)
+  | (String, _)
+  | (_, String)
+  | (Boolean, _)
+  | (_, Boolean)
+  | (Object(_), _)
+  | (_, Object(_)) => typesNotMatched(t1, t2)
   };
+};
 
 let rec abduce = (styp1: styp, styp2: styp) : styp =>
   switch (styp1, styp2) {
@@ -222,7 +214,14 @@ and diffT = (t1: t, t2: t) : (t, t, t) =>
     let tA2 = stypIsSame(stypA2) ? Same : Array(stypA2);
     let tB = Array(stypB);
     (tA1, tA2, tB);
-  | _ => assert(false)
+  | (Number, _)
+  | (_, Number)
+  | (String, _)
+  | (_, String)
+  | (Boolean, _)
+  | (_, Boolean)
+  | (Object(_), _)
+  | (_, Object(_)) => (Same, Same, typesNotMatched(t1, t2))
   }
 and diffO = (o1: o, o2: o) : (o, o, o) =>
   switch (o1, o2) {
