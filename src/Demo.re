@@ -65,6 +65,6 @@ let testBigDiff = () => {
   diff;
 };
 
-let res = testSmallDiff(0);
+let res = testSmallDiff(4);
 /* let res = testBigDiff(); */
 let test = () => res;
