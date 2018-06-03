@@ -9,6 +9,16 @@ module Key = {
   };
 };
 
+module Color = {
+  let black = "#000000";
+  let blue = "#0000FF";
+  let brown = "#795E26"
+  let green = "#09885A";
+  let grey = "#979797";
+  let red = "#D60A0A";
+  let style = color => ReactDOMRe.Style.make(~color, ());
+};
+
 module TreeView = {
   type state = {collapsed: bool};
   type actions =
@@ -44,14 +54,12 @@ module TreeView = {
 let node = x => <span className="node"> (ReasonReact.string(x)) </span>;
 
 let baseType = x =>
-  <span className="node" style=(ReactDOMRe.Style.make(~color="orange", ()))>
+  <span className="node" style=Color.(style(green))>
     (ReasonReact.string(x))
   </span>;
 
 let questionMark =
-  <span style=(ReactDOMRe.Style.make(~color="red", ()))>
-    (ReasonReact.string(" ? "))
-  </span>;
+  <span style=Color.(style(red))> (ReasonReact.string(" ? ")) </span>;
 
 type fmt = {
   plus: bool /* print '+' in front of number */,
@@ -66,7 +74,7 @@ let rec toComponent =
         (styp: styp, ~ctx: p, ~fmt: fmt)
         : ReasonReact.reactElement => {
   let pUnchanged = ctx == 0 && styp.p == 0;
-  let color = stypIsNull(styp) ? "red" : pUnchanged ? "grey" : "black";
+  let color = Color.(stypIsNull(styp) ? red : pUnchanged ? grey : black);
   let pString =
     if (fmt.percent && ctx != 0) {
       float_of_int(styp.p) /. float_of_int(ctx) |. string_of_float;
@@ -76,12 +84,10 @@ let rec toComponent =
   let p =
     pUnchanged || styp.p == 1 ?
       ReasonReact.null :
-      <span style=(ReactDOMRe.Style.make(~color="green", ()))>
-        (ReasonReact.string(pString))
-      </span>;
+      <span style=Color.(style(blue))> (ReasonReact.string(pString)) </span>;
   let o = styp.o == Opt ? questionMark : ReasonReact.null;
   let t = styp.t |. toComponentT(~ctx=styp.p, ~fmt);
-  let style = ReactDOMRe.Style.make(~color, ());
+  let style = Color.style(color);
   stypIsNull(styp) ?
     <div style className="node"> (ReasonReact.string("null")) </div> :
     <div style> p o t </div>;
