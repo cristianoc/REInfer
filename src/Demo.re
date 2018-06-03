@@ -57,7 +57,7 @@ let testSmallDiff = n => {
   diff;
 };
 
-let testBigDiff = {
+let testBigDiff = () => {
   let styp1 = Lazy.force(bronze);
   let styp2 = Lazy.force(platinum);
   let diff = diffCheck(styp1, styp2);
@@ -65,6 +65,6 @@ let testBigDiff = {
   diff;
 };
 
-let res = testSmallDiff(4);
-/* let res = testBigDiff; */
+let res = testSmallDiff(0);
+/* let res = testBigDiff(); */
 let test = () => res;
