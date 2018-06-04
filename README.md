@@ -11,9 +11,7 @@ npm run serve
 code .
 ```
 
-Then open the served page in **Chrome**. Use an incognito window and keep Chrome developer tools always open, and select **Disable cache** in the **Network** settings.
-
-####Note auto-refresh seems a bit flaky at the moment. Killing and restarting the server, as well as opening a new browser window (not just refresh), seems to help.
+Then open the served page in **Chrome**. Keep Chrome developer tools always open, and select **Disable cache** in the **Network** settings.
 
 ## Build for Production
 
