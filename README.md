@@ -6,10 +6,14 @@
 npm install
 npm start
 # in another tab
-npm run webpack
+npm run serve
+# in another tab
+code .
 ```
 
-After you see the webpack compilation succeed (the `npm run webpack` step), open up `src/index.html` (**no server needed!**). Then modify whichever `.re` file in `src` and refresh the page to see the changes.
+Then open the served page in **Chrome**.
+
+####Note auto-refresh seems a bit flaky at the moment. Killing and restarting the server, as well as opening a new browser window (not just refresh), seems to help.
 
 ## Build for Production
 

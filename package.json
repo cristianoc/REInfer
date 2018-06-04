@@ -1,13 +1,12 @@
 {
-  "name": "my-react-app",
+  "name": "statistical-type-inference",
   "version": "0.1.0",
   "scripts": {
     "build": "bsb -make-world",
-    "start": "bsb -make-world -w",
+    "start": "bsb -make-world -w -ws _ ",
     "clean": "bsb -clean-world",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack": "webpack -w",
-    "webpack:production": "NODE_ENV=production webpack"
+    "serve": "npx serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "BuckleScript"
@@ -20,8 +19,6 @@
     "reason-react": ">=0.4.0"
   },
   "devDependencies": {
-    "bs-platform": "^3.1.4",
-    "webpack": "^4.0.1",
-    "webpack-cli": "^2.0.10"
+    "bs-platform": "^3.2.0-alpha2"
   }
 }
