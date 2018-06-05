@@ -11,7 +11,7 @@ npm run serve
 code .
 ```
 
-Then open the served page in **Chrome**. Keep Chrome developer tools always open, and select **Disable cache** in the **Network** settings.
+Then open the served page in **Chrome**.
 
 ## Build for Production
 
