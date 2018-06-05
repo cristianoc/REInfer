@@ -12,7 +12,7 @@ module Key = {
 module Color = {
   let black = "#000000";
   let blue = "#0000FF";
-  let brown = "#795E26"
+  let brown = "#795E26";
   let green = "#09885A";
   let grey = "#979797";
   let red = "#D60A0A";
@@ -51,7 +51,8 @@ module TreeView = {
   };
 };
 
-let node = x => <span className="node"> (ReasonReact.string(x)) </span>;
+let node = (~style=?, x) =>
+  <span className="node" ?style> (ReasonReact.string(x)) </span>;
 
 let baseType = x =>
   <span className="node" style=Color.(style(green))>
@@ -94,7 +95,7 @@ let rec toComponent =
 }
 and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   switch (t) {
-  | Same => baseType(fmt.same ? "same" : "empty")
+  | Empty => baseType(fmt.same ? "same" : "empty")
   | Number => baseType("number")
   | String => baseType("string")
   | Boolean => baseType("boolean")
@@ -107,14 +108,32 @@ and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
     <div>
       (ReasonReact.array(Js.Dict.entries(d) |. Array.mapWithIndex(doEntry)))
     </div>;
-  | Array(styp) when stypIsSame(styp) => baseType("[]")
+  | Array(styp) when stypIsEmpty(styp) => node("[]")
   | Array(styp) =>
     <span>
-      <TreeView nodeLabel=(baseType("[")) collapsed=false>
+      <TreeView nodeLabel=(node("[")) collapsed=false>
         (styp |. toComponent(~ctx, ~fmt))
       </TreeView>
-      (baseType("]"))
+      (node("]"))
     </span>
+  | Annotation(s, t, arr) =>
+    let doEntry = (i, (lbl, styp)) =>
+      styp |. stypIsEmpty ?
+        ReasonReact.null :
+        <TreeView
+          key=(string_of_int(i)) nodeLabel=(node(lbl)) collapsed=true>
+          (styp |. toComponent(~ctx, ~fmt=fmtDelta))
+        </TreeView>;
+
+    <div>
+      <TreeView
+        key=s
+        nodeLabel=(node(~style=Color.(style(brown)), s))
+        collapsed=true>
+        (t |. toComponentT(~ctx, ~fmt))
+      </TreeView>
+      (ReasonReact.array(arr |. Array.mapWithIndex(doEntry)))
+    </div>;
   };
 
 module Styp = {
@@ -130,7 +149,7 @@ module Styp = {
 
 module Diff = {
   let component = ReasonReact.statelessComponent("Diff");
-  let make = (~diff: Typecheck.diff, _) => {
+  let make = (~diff: Diff.t, _) => {
     ...component,
     render: _ =>
       <div>

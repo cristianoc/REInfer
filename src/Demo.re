@@ -1,4 +1,4 @@
-open! Typecheck;
+open! TypeCheck;
 
 let testSmall = () => {
   /* let small = Js.Json.parseExn({| [{"x": "hello"}, {"x":null, "y":0}] |}); */
@@ -33,6 +33,8 @@ let testSmallAbduce = () => {
   Js.log(styp2 |. PrettyPrint.styp);
   Js.log(styp |. PrettyPrint.styp);
 };
+
+open Diff;
 
 let logDiff = ({styp1, styp2, stypA1, stypA2, stypB}) => {
   Js.log2("styp1", styp1 |. PrettyPrint.styp);

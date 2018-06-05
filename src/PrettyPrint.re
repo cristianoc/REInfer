@@ -71,7 +71,7 @@ let rec toJson = (styp: styp, ~ctx: option(p)) : Js.Json.t =>
   }
 and toJsonT = (t: t, ~ctx: option(p)) : Js.Json.t =>
   switch (t) {
-  | Same => Js.Json.string("same")
+  | Empty => Js.Json.string("empty")
   | Number => Js.Json.string("number")
   | String => Js.Json.string("string")
   | Boolean => Js.Json.string("boolean")
@@ -81,8 +81,9 @@ and toJsonT = (t: t, ~ctx: option(p)) : Js.Json.t =>
     |. Array.map(doEntry)
     |. Js.Dict.fromArray
     |. Js.Json.object_;
-  | Array(styp) when simpleEmptyArray && stypIsSame(styp) =>
+  | Array(styp) when simpleEmptyArray && stypIsEmpty(styp) =>
     [||] |. Js.Json.array
   | Array(styp) => [|styp |. toJson(~ctx)|] |. Js.Json.array
+  | Annotation(_,t,_) => t |. toJsonT(~ctx)
   };
 let styp = styp => styp |. toJson(~ctx=None) |. Js.Json.stringify;
