@@ -5,7 +5,7 @@ let rec abduceStyp = (styp1: styp, styp2: styp) : styp =>
   | ({t: t1, o: o1, p: p1}, {t: t2, o: o2, p: p2}) =>
     let t = abduceT(t1, t2);
     let o = abduceO(o1, o2);
-    let p = p2 - p1;
+    let p = P.(p2 -- p1);
     {t, o, p};
   }
 and abduceT = (t1: t, t2: t) : t =>
@@ -33,7 +33,7 @@ and abduceT = (t1: t, t2: t) : t =>
       | None =>
         let tA = abduceT(styp1.t, styp1.t);
         let oA = abduceO(styp1.o, NotOpt);
-        let pA = - styp1.p;
+        let pA = P.(zero -- styp1.p);
         let stypA = {t: tA, o: oA, p: pA};
         if (! stypIsEmpty(stypA)) {
           d |. Js.Dict.set(lbl, stypA);
@@ -54,13 +54,13 @@ and abduceO = (o1: o, o2: o) : o =>
   switch (o1, o2) {
   | (NotOpt, NotOpt) => NotOpt
   | (NotOpt, Opt(p)) => Opt(p)
-  | (Opt(p1), Opt(p2)) => p1 == p2 ? NotOpt : Opt(p2-p1)
+  | (Opt(p1), Opt(p2)) => p1 == p2 ? NotOpt : Opt(P.(p2 -- p1))
   | (Opt(_), NotOpt) => assert(false)
   };
 
 let abduceCheck = (styp1, styp2) => {
   let stypA = abduceStyp(styp1, styp2);
-  open !TypeCheck;
+  open! TypeCheck;
   if (styp1 ++ stypA != styp2) {
     Js.log("checkAbduce failed");
     Js.log2("styp1", styp1 |. PrettyPrint.styp);

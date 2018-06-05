@@ -61,7 +61,7 @@ let baseType = x =>
 
 let questionMark = p =>
   <span style=Color.(style(red))>
-    (ReasonReact.string(" ? " ++ string_of_int(p)))
+    (ReasonReact.string(" ? " ++ P.toString(p)))
   </span>;
 
 type fmt = {
@@ -76,22 +76,22 @@ let fmtDelta = {plus: true, percent: false, same: true};
 let rec toComponentStyp =
         (styp: styp, ~ctx: p, ~fmt: fmt)
         : ReasonReact.reactElement => {
-  let pUnchanged = ctx == 0 && styp.p == 0;
+  let pUnchanged = ctx == P.zero && styp.p == P.zero;
   let color = Color.(stypIsNull(styp) ? red : pUnchanged ? grey : black);
   let pString =
-    if (fmt.percent && ctx != 0) {
-      float_of_int(styp.p) /. float_of_int(ctx) |. string_of_float;
+    if (fmt.percent && ctx != P.zero) {
+      P.toFloat(styp.p) /. P.toFloat(ctx) |. string_of_float;
     } else {
-      (fmt.plus ? "+" : "") ++ string_of_int(styp.p);
+      (fmt.plus ? "+" : "") ++ P.toString(styp.p);
     };
   let p =
-    pUnchanged || styp.p == 1 ?
+    pUnchanged || styp.p == P.one ?
       ReasonReact.null :
       <span style=Color.(style(blue))> (ReasonReact.string(pString)) </span>;
   let o =
     switch (styp.o) {
     | NotOpt => ReasonReact.null
-    | Opt(n) => questionMark(n)
+    | Opt(p1) => questionMark(p1)
     };
   let t = styp.t |. toComponentT(~ctx=styp.p, ~fmt);
   let style = Color.style(color);
@@ -148,7 +148,7 @@ module Styp = {
     ...component,
     render: _ =>
       <TreeView nodeLabel=(node(name)) collapsed=true>
-        (styp |. toComponentStyp(~ctx=0, ~fmt))
+        (styp |. toComponentStyp(~ctx=P.zero, ~fmt))
       </TreeView>,
   };
 };

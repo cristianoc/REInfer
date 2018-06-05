@@ -5,27 +5,14 @@ let simpleNull = true;
 let simpleEmptyArray = true;
 let skip100Percent = true;
 let skip0OutOf0 = true;
-let percent = false;
 
-let pToString = (p, ~ctx) => {
-  let p0 =
-    switch (ctx) {
-    | None => p
-    | Some(p0) => p0
-    };
-  if (percent && p0 != 0) {
-    let perc = float_of_int(p) /. float_of_int(p0);
-    string_of_float(perc);
-  } else {
-    string_of_int(p) ++ "/" ++ string_of_int(p0);
-  };
-};
+let pToString = (p, ~ctx) => P.toString(p) ++ "/" ++ P.toString(ctx);
 
 let pToJson = (p, ~ctx) => p |. pToString(~ctx) |. Js.Json.string;
 
-let is100Percent = (p, ~ctx) => ctx == None || ctx == Some(p);
+let is100Percent = (p, ~ctx) => ctx == P.zero || ctx == p;
 
-let is0OutOf0 = (p, ~ctx) => p == 0 && (ctx == None || ctx == Some(0));
+let is0OutOf0 = (p, ~ctx) => p == P.zero && ctx == P.zero;
 
 let addStats = (jsonT, ~o, ~p, ~skipP, ~ctx) => {
   let jsonStats = {
@@ -33,7 +20,7 @@ let addStats = (jsonT, ~o, ~p, ~skipP, ~ctx) => {
     let oString =
       switch (o) {
       | NotOpt => ""
-      | Opt(n) => "?" ++ string_of_int(n)
+      | Opt(p1) => "?" ++ P.toString(p1)
       };
 
     oString ++ pString |. Js.Json.string;
@@ -57,7 +44,7 @@ let addStats = (jsonT, ~o, ~p, ~skipP, ~ctx) => {
     }
   };
 };
-let rec toJsonStyp = (styp: styp, ~ctx: option(p)) : Js.Json.t =>
+let rec toJsonStyp = (styp: styp, ~ctx: p) : Js.Json.t =>
   if (simpleNull && styp |. stypIsNull) {
     Js.Json.null;
   } else {
@@ -68,13 +55,13 @@ let rec toJsonStyp = (styp: styp, ~ctx: option(p)) : Js.Json.t =>
       || skip0OutOf0
       && styp.p
       |. is0OutOf0(~ctx);
-    let jsonT = styp.t |. toJsonT(~ctx=Some(styp.p));
+    let jsonT = styp.t |. toJsonT(~ctx=styp.p);
     switch (skipP, styp.o) {
     | (true, NotOpt) => jsonT
     | _ => jsonT |. addStats(~o=styp.o, ~p=styp.p, ~skipP, ~ctx)
     };
   }
-and toJsonT = (t: t, ~ctx: option(p)) : Js.Json.t =>
+and toJsonT = (t: t, ~ctx: p) : Js.Json.t =>
   switch (t) {
   | Empty => Js.Json.string("empty")
   | Number => Js.Json.string("number")
@@ -91,4 +78,4 @@ and toJsonT = (t: t, ~ctx: option(p)) : Js.Json.t =>
   | Array(styp) => [|styp |. toJsonStyp(~ctx)|] |. Js.Json.array
   | Annotation(_, t, _) => t |. toJsonT(~ctx)
   };
-let styp = styp => styp |. toJsonStyp(~ctx=None) |. Js.Json.stringify;
+let styp = styp => styp |. toJsonStyp(~ctx=P.zero) |. Js.Json.stringify;

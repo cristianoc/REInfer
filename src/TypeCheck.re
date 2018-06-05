@@ -6,18 +6,18 @@ let typesNotMatched = (t1, t2) =>
     "TypeErr",
     Empty,
     [|
-      ("lhs", {t: t1, o: NotOpt, p: 0}),
-      ("rhs", {t: t2, o: NotOpt, p: 0}),
+      ("lhs", {t: t1, o: NotOpt, p: P.zero}),
+      ("rhs", {t: t2, o: NotOpt, p: P.zero}),
     |],
   );
 
 let rec fromJson = (json: Js.Json.t) : styp =>
   switch (Js.Json.classify(json)) {
   | JSONFalse
-  | JSONTrue => {t: Boolean, o: NotOpt, p: 1}
-  | JSONNull => {t: Empty, o: Opt(1), p: 1}
-  | JSONString(_) => {t: String, o: NotOpt, p: 1}
-  | JSONNumber(_) => {t: Number, o: NotOpt, p: 1}
+  | JSONTrue => {t: Boolean, o: NotOpt, p: P.one}
+  | JSONNull => {t: Empty, o: Opt(P.one), p: P.one}
+  | JSONString(_) => {t: String, o: NotOpt, p: P.one}
+  | JSONNumber(_) => {t: Number, o: NotOpt, p: P.one}
   | JSONObject(dict) =>
     let do_entry = ((lbl, v)) => {
       let styp = fromJson(v);
@@ -29,26 +29,29 @@ let rec fromJson = (json: Js.Json.t) : styp =>
           Js.Dict.entries(dict) |. Array.map(do_entry) |. Js.Dict.fromArray,
         ),
       o: NotOpt,
-      p: 1,
+      p: P.one,
     };
   | JSONArray(a) =>
     a
-    |. Array.reduce({t: Empty, o: NotOpt, p: 0}, (styp, json) =>
+    |. Array.reduce({t: Empty, o: NotOpt, p: P.zero}, (styp, json) =>
          styp ++ fromJson(json)
        )
-    |. (styp => {t: Array(styp), o: NotOpt, p: 1})
+    |. (styp => {t: Array(styp), o: NotOpt, p: P.one})
   }
 and (++) = (styp1, styp2) => {
   let t = plusT(styp1.t, styp2.t);
   let o = plusO(styp1.o, styp2.o);
-  let p = styp1.p + styp2.p;
+  open! P;
+  let p = styp1.p ++ styp2.p;
   {t, o, p};
 }
 and plusO = (o1, o2) =>
   switch (o1, o2) {
   | (NotOpt, o)
   | (o, NotOpt) => o
-  | (Opt(o1), Opt(o2)) => Opt(o1 + o2)
+  | (Opt(p1), Opt(p2)) =>
+    open! P;
+    Opt(p1 ++ p2);
   }
 and plusT = (t1, t2) =>
   switch (t1, t2) {

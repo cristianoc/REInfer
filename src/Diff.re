@@ -16,7 +16,7 @@ let rec diffStyp = (styp1: styp, styp2: styp) : difft => {
   let (tA1, tA2, tB) = diffT(styp1.t, styp2.t);
   let (oA1, oA2, oB) = diffO(styp1.o, styp2.o);
   let pB = min(styp1.p, styp2.p);
-  let (pA1, pA2) = (styp1.p - pB, styp2.p - pB);
+  let (pA1, pA2) = (P.(styp1.p -- pB), P.(styp2.p -- pB));
   let stypA1 = {t: tA1, o: oA1, p: pA1};
   let stypA2 = {t: tA2, o: oA2, p: pA2};
   let stypB = {t: tB, o: oB, p: pB};
@@ -28,8 +28,8 @@ and diffO = (o1: o, o2: o) : (o, o, o) =>
   | (NotOpt, _) => (NotOpt, o2, NotOpt)
   | (_, NotOpt) => (o1, NotOpt, NotOpt)
   | (Opt(p1), Opt(p2)) => (
-      p1 > p2 ? Opt(p1 - p2) : NotOpt,
-      p2 > p1 ? Opt(p2 - p1) : NotOpt,
+      p1 > p2 ? Opt(P.(p1 -- p2)) : NotOpt,
+      p2 > p1 ? Opt(P.(p2 -- p1)) : NotOpt,
       Opt(min(p1, p2)),
     )
   }
@@ -96,9 +96,9 @@ and diffT = (t1: t, t2: t) : (t, t, t) =>
   };
 
 let rec combine = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
-  if (stypA1.p != 0
+  if (stypA1.p != P.zero
       || stypA1.o != NotOpt
-      || stypA2.p != 0
+      || stypA2.p != P.zero
       || stypA2.o != NotOpt) {
     {
       ...stypB,
