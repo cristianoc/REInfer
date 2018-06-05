@@ -24,7 +24,7 @@ module TreeView = {
   type actions =
     | Click;
   let component = ReasonReact.reducerComponent("TreeView");
-  let make = (~nodeLabel, ~collapsed, children) => {
+  let make = (~nodeLabel, ~collapsed, ~child, _) => {
     ...component,
     initialState: () => {collapsed: collapsed},
     reducer: (action, state) =>
@@ -44,7 +44,7 @@ module TreeView = {
           <span> nodeLabel </span>
         </div>
         <div className=containerClassName>
-          (collapsed ? ReasonReact.null : ReasonReact.array(children))
+          (collapsed ? ReasonReact.null : child)
         </div>
       </div>;
     },
@@ -107,9 +107,12 @@ and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   | Boolean => baseType("boolean")
   | Object(d) =>
     let doEntry = (i, (lbl, styp)) =>
-      <TreeView key=(string_of_int(i)) nodeLabel=(node(lbl)) collapsed=false>
-        (styp |. toComponentStyp(~ctx, ~fmt))
-      </TreeView>;
+      <TreeView
+        key=(string_of_int(i))
+        nodeLabel=(node(lbl))
+        collapsed=false
+        child=(styp |. toComponentStyp(~ctx, ~fmt))
+      />;
 
     <div>
       (ReasonReact.array(Js.Dict.entries(d) |. Array.mapWithIndex(doEntry)))
@@ -117,9 +120,11 @@ and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   | Array(styp) when stypIsEmpty(styp) => node("[]")
   | Array(styp) =>
     <span>
-      <TreeView nodeLabel=(node("[")) collapsed=false>
-        (styp |. toComponentStyp(~ctx, ~fmt))
-      </TreeView>
+      <TreeView
+        nodeLabel=(node("["))
+        collapsed=false
+        child=(styp |. toComponentStyp(~ctx, ~fmt))
+      />
       (node("]"))
     </span>
   | Annotation(s, t, arr) =>
@@ -127,17 +132,19 @@ and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
       styp |. stypIsEmpty ?
         ReasonReact.null :
         <TreeView
-          key=(string_of_int(i)) nodeLabel=(node(lbl)) collapsed=true>
-          (styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
-        </TreeView>;
+          key=(string_of_int(i))
+          nodeLabel=(node(lbl))
+          collapsed=true
+          child=(styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
+        />;
 
     <div>
       <TreeView
         key=s
         nodeLabel=(node(~style=Color.(style(brown)), s))
-        collapsed=true>
-        (t |. toComponentT(~ctx, ~fmt))
-      </TreeView>
+        collapsed=true
+        child=(t |. toComponentT(~ctx, ~fmt))
+      />
       (ReasonReact.array(arr |. Array.mapWithIndex(doEntry)))
     </div>;
   };
@@ -147,9 +154,11 @@ module Styp = {
   let make = (~name, ~styp, ~fmt=fmtDefault, _) => {
     ...component,
     render: _ =>
-      <TreeView nodeLabel=(node(name)) collapsed=true>
-        (styp |. toComponentStyp(~ctx=P.zero, ~fmt))
-      </TreeView>,
+      <TreeView
+        nodeLabel=(node(name))
+        collapsed=true
+        child=(styp |. toComponentStyp(~ctx=P.zero, ~fmt))
+      />,
   };
 };
 
