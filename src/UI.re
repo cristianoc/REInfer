@@ -59,8 +59,10 @@ let baseType = x =>
     (ReasonReact.string(x))
   </span>;
 
-let questionMark =
-  <span style=Color.(style(red))> (ReasonReact.string(" ? ")) </span>;
+let questionMark = p =>
+  <span style=Color.(style(red))>
+    (ReasonReact.string(" ? " ++ string_of_int(p)))
+  </span>;
 
 type fmt = {
   plus: bool /* print '+' in front of number */,
@@ -71,7 +73,7 @@ type fmt = {
 let fmtDefault = {plus: false, percent: true, same: false};
 let fmtDelta = {plus: true, percent: false, same: true};
 
-let rec toComponent =
+let rec toComponentStyp =
         (styp: styp, ~ctx: p, ~fmt: fmt)
         : ReasonReact.reactElement => {
   let pUnchanged = ctx == 0 && styp.p == 0;
@@ -86,7 +88,11 @@ let rec toComponent =
     pUnchanged || styp.p == 1 ?
       ReasonReact.null :
       <span style=Color.(style(blue))> (ReasonReact.string(pString)) </span>;
-  let o = styp.o == Opt ? questionMark : ReasonReact.null;
+  let o =
+    switch (styp.o) {
+    | NotOpt => ReasonReact.null
+    | Opt(n) => questionMark(n)
+    };
   let t = styp.t |. toComponentT(~ctx=styp.p, ~fmt);
   let style = Color.style(color);
   stypIsNull(styp) ?
@@ -102,7 +108,7 @@ and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   | Object(d) =>
     let doEntry = (i, (lbl, styp)) =>
       <TreeView key=(string_of_int(i)) nodeLabel=(node(lbl)) collapsed=false>
-        (styp |. toComponent(~ctx, ~fmt))
+        (styp |. toComponentStyp(~ctx, ~fmt))
       </TreeView>;
 
     <div>
@@ -112,7 +118,7 @@ and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   | Array(styp) =>
     <span>
       <TreeView nodeLabel=(node("[")) collapsed=false>
-        (styp |. toComponent(~ctx, ~fmt))
+        (styp |. toComponentStyp(~ctx, ~fmt))
       </TreeView>
       (node("]"))
     </span>
@@ -122,7 +128,7 @@ and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
         ReasonReact.null :
         <TreeView
           key=(string_of_int(i)) nodeLabel=(node(lbl)) collapsed=true>
-          (styp |. toComponent(~ctx, ~fmt=fmtDelta))
+          (styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
         </TreeView>;
 
     <div>
@@ -142,7 +148,7 @@ module Styp = {
     ...component,
     render: _ =>
       <TreeView nodeLabel=(node(name)) collapsed=true>
-        (styp |. toComponent(~ctx=0, ~fmt))
+        (styp |. toComponentStyp(~ctx=0, ~fmt))
       </TreeView>,
   };
 };

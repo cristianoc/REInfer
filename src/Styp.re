@@ -1,7 +1,7 @@
 type p = int;
 type o =
   | NotOpt
-  | Opt;
+  | Opt(p);
 type t =
   | Empty
   | Number
@@ -17,7 +17,7 @@ and styp = {
 };
 
 let stypIsNull = (styp: styp) =>
-  styp.t == Empty && styp.o == Opt && styp.p == 0;
+  styp.t == Empty && styp.o == Opt(1) && styp.p == 0;
 
 let stypEmpty = {t: Empty, o: NotOpt, p: 0};
 let stypIsEmpty = styp =>

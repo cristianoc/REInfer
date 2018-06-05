@@ -20,8 +20,19 @@ let rec diffStyp = (styp1: styp, styp2: styp) : difft => {
   let stypA1 = {t: tA1, o: oA1, p: pA1};
   let stypA2 = {t: tA2, o: oA2, p: pA2};
   let stypB = {t: tB, o: oB, p: pB};
+  open! TypeCheck;
   {styp1, styp2, stypA1, stypA2, stypB};
 }
+and diffO = (o1: o, o2: o) : (o, o, o) =>
+  switch (o1, o2) {
+  | (NotOpt, _) => (NotOpt, o2, NotOpt)
+  | (_, NotOpt) => (o1, NotOpt, NotOpt)
+  | (Opt(p1), Opt(p2)) => (
+      p1 > p2 ? Opt(p1 - p2) : NotOpt,
+      p2 > p1 ? Opt(p2 - p1) : NotOpt,
+      Opt(min(p1, p2)),
+    )
+  }
 and diffT = (t1: t, t2: t) : (t, t, t) =>
   switch (t1, t2) {
   | (Empty | Annotation(_), _) => (Empty, t2, Empty)
@@ -82,12 +93,6 @@ and diffT = (t1: t, t2: t) : (t, t, t) =>
   | (_, Boolean)
   | (Object(_), _)
   | (_, Object(_)) => (t1, t2, TypeCheck.typesNotMatched(t1, t2))
-  }
-and diffO = (o1: o, o2: o) : (o, o, o) =>
-  switch (o1, o2) {
-  | (NotOpt, _) => (NotOpt, o2, NotOpt)
-  | (_, NotOpt) => (o1, NotOpt, NotOpt)
-  | (Opt, Opt) => (NotOpt, NotOpt, Opt)
   };
 
 let rec combine = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
@@ -157,11 +162,12 @@ let diff = (styp1, styp2) => {
     {...d, stypB: combine(d.stypA1, d.stypA2, d.stypB)} : d;
 };
 let diffCheck = (styp1, styp2) => {
-  let d = diff(styp1, styp2);
+  let d = diffStyp(styp1, styp2);
   open! TypeCheck;
   assert(d.stypB ++ d.stypA1 == styp1);
   assert(d.stypB ++ d.stypA2 == styp2);
-  d;
+  inlineDifferences ?
+    {...d, stypB: combine(d.stypA1, d.stypA2, d.stypB)} : d;
 };
 
 type t = difft;

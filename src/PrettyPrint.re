@@ -30,7 +30,12 @@ let is0OutOf0 = (p, ~ctx) => p == 0 && (ctx == None || ctx == Some(0));
 let addStats = (jsonT, ~o, ~p, ~skipP, ~ctx) => {
   let jsonStats = {
     let pString = p |. pToString(~ctx);
-    let oString = o == Opt ? "?" : "";
+    let oString =
+      switch (o) {
+      | NotOpt => ""
+      | Opt(n) => "?" ++ string_of_int(n)
+      };
+
     oString ++ pString |. Js.Json.string;
   };
   switch (Js.Json.classify(jsonT)) {
@@ -52,7 +57,7 @@ let addStats = (jsonT, ~o, ~p, ~skipP, ~ctx) => {
     }
   };
 };
-let rec toJson = (styp: styp, ~ctx: option(p)) : Js.Json.t =>
+let rec toJsonStyp = (styp: styp, ~ctx: option(p)) : Js.Json.t =>
   if (simpleNull && styp |. stypIsNull) {
     Js.Json.null;
   } else {
@@ -76,14 +81,14 @@ and toJsonT = (t: t, ~ctx: option(p)) : Js.Json.t =>
   | String => Js.Json.string("string")
   | Boolean => Js.Json.string("boolean")
   | Object(d) =>
-    let doEntry = ((lbl, styp)) => (lbl, styp |. toJson(~ctx));
+    let doEntry = ((lbl, styp)) => (lbl, styp |. toJsonStyp(~ctx));
     Js.Dict.entries(d)
     |. Array.map(doEntry)
     |. Js.Dict.fromArray
     |. Js.Json.object_;
   | Array(styp) when simpleEmptyArray && stypIsEmpty(styp) =>
     [||] |. Js.Json.array
-  | Array(styp) => [|styp |. toJson(~ctx)|] |. Js.Json.array
-  | Annotation(_,t,_) => t |. toJsonT(~ctx)
+  | Array(styp) => [|styp |. toJsonStyp(~ctx)|] |. Js.Json.array
+  | Annotation(_, t, _) => t |. toJsonT(~ctx)
   };
-let styp = styp => styp |. toJson(~ctx=None) |. Js.Json.stringify;
+let styp = styp => styp |. toJsonStyp(~ctx=None) |. Js.Json.stringify;

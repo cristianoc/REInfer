@@ -1,6 +1,6 @@
 open Belt;
 open Styp;
-let rec abduce = (styp1: styp, styp2: styp) : styp =>
+let rec abduceStyp = (styp1: styp, styp2: styp) : styp =>
   switch (styp1, styp2) {
   | ({t: t1, o: o1, p: p1}, {t: t2, o: o2, p: p2}) =>
     let t = abduceT(t1, t2);
@@ -23,7 +23,7 @@ and abduceT = (t1: t, t2: t) : t =>
           d |. Js.Dict.set(lbl, styp2);
         }
       | Some(styp1) =>
-        let stypA = abduce(styp1, styp2);
+        let stypA = abduceStyp(styp1, styp2);
         if (! stypIsEmpty(stypA)) {
           d |. Js.Dict.set(lbl, stypA);
         };
@@ -46,20 +46,20 @@ and abduceT = (t1: t, t2: t) : t =>
       d |. Js.Dict.entries |. Array.keep(((_, styp)) => ! stypIsEmpty(styp));
     arr |. Array.length == 0 ? Empty : Object(arr |. Js.Dict.fromArray);
   | (Array(styp1), Array(styp2)) =>
-    let stypA = abduce(styp1, styp2);
+    let stypA = abduceStyp(styp1, styp2);
     stypIsEmpty(stypA) ? Empty : Array(stypA);
   | _ => assert(false)
   }
 and abduceO = (o1: o, o2: o) : o =>
   switch (o1, o2) {
   | (NotOpt, NotOpt) => NotOpt
-  | (NotOpt, Opt) => Opt
-  | (Opt, Opt) => NotOpt
-  | (Opt, NotOpt) => assert(false)
+  | (NotOpt, Opt(p)) => Opt(p)
+  | (Opt(p1), Opt(p2)) => p1 == p2 ? NotOpt : Opt(p2-p1)
+  | (Opt(_), NotOpt) => assert(false)
   };
 
 let abduceCheck = (styp1, styp2) => {
-  let stypA = abduce(styp1, styp2);
+  let stypA = abduceStyp(styp1, styp2);
   open !TypeCheck;
   if (styp1 ++ stypA != styp2) {
     Js.log("checkAbduce failed");

@@ -83,14 +83,14 @@ typ ::=
 Statistical types: `styp`
 
 ```
-o ::= opt | notOpt
+o ::= opt(p) | notOpt
 ```
 
 ```
 styp ::= (t,o)::p
 ```
 
-Abbreviation: write `t?::p` or `t::p`.
+Abbreviation: write `t?n::p` or `t::p`.
 
 ```
 t ::=
@@ -196,8 +196,8 @@ Type checking for styp:  `|- val : styp`
 ```
 
 ```
-———————————————————
-|- null : (t? :: 0)
+———————————————————-
+|- null : (t?1 :: 1)
 ```
 
 ```
@@ -221,7 +221,7 @@ weakening nullable:
 ```
  |- val : (t::p)
 ——————————————————
-|- val : (t? :: p)
+|- val : (t?0 :: p)
 ```
 
 weakening obj:
@@ -235,7 +235,7 @@ weakening obj:
 
 ### Sum of Statistical Types
 
-Combining `styp: |- styp1 + styp2 = styp` and `|- t1 + t2 = t`
+Combining `styp: |- styp1 + styp2 = styp` and `|- t1 + t2 = t` and `|- o1 + o2 = o`
 
 ```
 |- t1+t2=t  |-o1+o2=o  p1+p2=p
@@ -244,7 +244,7 @@ Combining `styp: |- styp1 + styp2 = styp` and `|- t1 + t2 = t`
 ```
 
 ```
-|- notOpt+o = o+notOpt = o  |- opt+o = o+opt = opt
+|- notOpt+o = o+notOpt = o  |- opt(p1)+opt(p2) = opt(p1+p2)
 ```
 
 
@@ -266,7 +266,7 @@ Combining `styp: |- styp1 + styp2 = styp` and `|- t1 + t2 = t`
 
 ```
 |- styp1 + styp1’ = styp1’’ … |- stypn + stypn’ = stypn’’
-o’’=(o==opt ? o : o’)
+|- o’’ = o + o’
 —————————————————————————————————————————————————————————
 |- ({x1:styp1, …, xn:stypn}, o) :: p  +
    ({x1:styp1’, …, xn:stypn’}, o’) :: p’  =
@@ -292,10 +292,9 @@ Statistical type inference: `|- val1, …, valn -> styp`
 
 ### Abduction for Statistical Types
 
-Abduction: `|- styp1 + <stypA> = styp2` and `|- t1 + <tA> = t2`
+Abduction: `|- styp1 + <stypA> = styp2` and `|- t1 + <tA> = t2` and `|- o1 + <oA> = o2`.
 
-Want smallest solution w.r.t. `<=`
-E.g. `notOpt < Opt`  `empty <= t`  subset on `Gamma`
+Want smallest solution w.r.t. `<=` where `styp1 <= styp2` if there is `styp` such that `|- styp1 + styp = styp2`.
 
 Abduction computes the smallest representation of the difference between statistical types.
 
@@ -303,7 +302,7 @@ Abduction computes the smallest representation of the difference between statist
 
 
 ```
-|- o1 + <oA> = o2  |- t1 + <tA> = t2  |- p1 + <pA> = p2
+|- t1 + <tA> = t2  |- o1 + <oA> = o2  |- p1 + <pA> = p2
 ———————————————————————————————————————————————————————
 |- (t1,o1)::p2 + <(tA,oA)::pA> = (t2,o2)::p2
 ```
@@ -313,12 +312,19 @@ Abduction computes the smallest representation of the difference between statist
 ```
 
 ```
-|- notOpt + <opt> = opt 
+|- notOpt + <opt(p)> = opt(p) 
 ```
 
 ```
-|- opt + <notOpt> = opt
+|- opt(p) + <notOpt> = opt(p)
 ```
+
+```
+             p2 > p1
+-----------------------------------
+|- opt(p1) + <opt(p2-p1)> = opt(p2)
+```
+
 
 ```
 |- empty + <t> = t
@@ -384,11 +390,12 @@ Abduction computes the smallest representation of the difference between statist
 ### Diff for Statistical Types
 
 Abduction: `|- <stypA1,stypA2> + <stypB> = styp1,styp2`
-and `|- <tA1,tA2> + <tB> = t1,t2`
+and `|- <tA1,tA2> + <tB> = t1,t2` and `|- <oA1,oA2> + <oB> = o1,o2`.
 
-Want smallest solution w.r.t. `<=` for the `A1`, `A2` part, and largest for the `B` part.
 
-E.g. `notOpt < Opt`, `empty <= t` and subset on `Gamma`.
+
+Want largest solution w.r.t. `<=` for the `B` part, and smallest for the `A1` and `A2` parts, where `styp1 <= styp2` if there is `styp` such that `|- styp1 + styp = styp2`.
+
 
 Let `stypEmpty = (empty, notOpt, 0)`.
 
@@ -412,8 +419,21 @@ stypB = (tB,oB)::pB
 ```
 
 ```
-|- <notOpt,notOpt> + <opt> = opt,opt
+|- <notOpt,notOpt> + <opt(p)> = opt(p),opt(p)
 ```
+
+```
+                     p1 < p2
+————————————————————————————————————————————————————
+|- <notOpt,opt(p2-p1)> + <opt(p1)> = opt(p1),opt(p2)
+```
+
+```
+                     p2 < p1
+————————————————————————————————————————————————————
+|- <opt(p1-p2),notOpt> + <opt(p2)> = opt(p1),opt(p2)
+```
+
 
 ```
 |- <empty,t2> + <empty> = empty,t2

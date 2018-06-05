@@ -15,7 +15,7 @@ let rec fromJson = (json: Js.Json.t) : styp =>
   switch (Js.Json.classify(json)) {
   | JSONFalse
   | JSONTrue => {t: Boolean, o: NotOpt, p: 1}
-  | JSONNull => {t: Empty, o: Opt, p: 0}
+  | JSONNull => {t: Empty, o: Opt(1), p: 1}
   | JSONString(_) => {t: String, o: NotOpt, p: 1}
   | JSONNumber(_) => {t: Number, o: NotOpt, p: 1}
   | JSONObject(dict) =>
@@ -40,10 +40,16 @@ let rec fromJson = (json: Js.Json.t) : styp =>
   }
 and (++) = (styp1, styp2) => {
   let t = plusT(styp1.t, styp2.t);
-  let o = styp1.o == Opt ? styp1.o : styp2.o;
+  let o = plusO(styp1.o, styp2.o);
   let p = styp1.p + styp2.p;
   {t, o, p};
 }
+and plusO = (o1, o2) =>
+  switch (o1, o2) {
+  | (NotOpt, o)
+  | (o, NotOpt) => o
+  | (Opt(o1), Opt(o2)) => Opt(o1 + o2)
+  }
 and plusT = (t1, t2) =>
   switch (t1, t2) {
   | (Annotation(_, t, _), _) => plusT(t, t2)
@@ -75,4 +81,3 @@ and plusT = (t1, t2) =>
   | (Object(_), _)
   | (_, Object(_)) => typesNotMatched(t1, t2)
   };
-
