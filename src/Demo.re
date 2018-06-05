@@ -28,7 +28,7 @@ let testSmallAbduce = () => {
      let styp2 = {| [{"y": "hello"}] |} |. Js.Json.parseExn |. Styp.fromJson; */
   let styp1 = {| {"x": "hello"} |} |. Js.Json.parseExn |. fromJson;
   let styp2 = {| {"x": null} |} |. Js.Json.parseExn |. fromJson;
-  let styp = styp2 -- styp1;
+  let styp = Abduction.(styp2 -- styp1);
   Js.log(styp1 |. PrettyPrint.styp);
   Js.log(styp2 |. PrettyPrint.styp);
   Js.log(styp |. PrettyPrint.styp);
