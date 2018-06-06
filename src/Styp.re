@@ -22,26 +22,26 @@ type p = P.t;
 type o =
   | NotOpt
   | Opt(p);
-type t =
+type typ =
   | Empty
   | Number
   | String
   | Boolean
   | Object(Js.Dict.t(styp))
   | Array(styp)
-  | Annotation(string, t, array((string, styp)))
+  | Annotation(string, typ, array((string, styp)))
 and styp = {
-  t,
+  typ,
   o,
   p,
 };
 
 let stypIsNull = (styp: styp) =>
-  styp.t == Empty && styp.o == Opt(P.one) && styp.p == P.zero;
+  styp.typ == Empty && styp.o == Opt(P.one) && styp.p == P.zero;
 
-let stypEmpty = {t: Empty, o: NotOpt, p: P.zero};
+let stypEmpty = {typ: Empty, o: NotOpt, p: P.zero};
 let stypIsEmpty = styp =>
   switch (styp) {
-  | {t: Empty, o: NotOpt, p} when p == P.zero => true
+  | {typ: Empty, o: NotOpt, p} when p == P.zero => true
   | _ => false
   };

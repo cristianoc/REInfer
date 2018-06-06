@@ -93,14 +93,14 @@ let rec toComponentStyp =
     | NotOpt => ReasonReact.null
     | Opt(p1) => questionMark(p1)
     };
-  let t = styp.t |. toComponentT(~ctx=styp.p, ~fmt);
+  let typ = styp.typ |. toComponentT(~ctx=styp.p, ~fmt);
   let style = Color.style(color);
   stypIsNull(styp) ?
     <div style className="node"> (ReasonReact.string("null")) </div> :
-    <div style> p o t </div>;
+    <div style> p o typ </div>;
 }
-and toComponentT = (t: t, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
-  switch (t) {
+and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
+  switch (typ) {
   | Empty => baseType(fmt.same ? "same" : "empty")
   | Number => baseType("number")
   | String => baseType("string")

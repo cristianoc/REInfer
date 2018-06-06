@@ -1,30 +1,30 @@
 open Belt;
 open Styp;
 
-let typesNotMatched = (t1, t2) =>
+let typesNotMatched = (typ1, typ2) =>
   Annotation(
     "TypeErr",
     Empty,
     [|
-      ("lhs", {t: t1, o: NotOpt, p: P.zero}),
-      ("rhs", {t: t2, o: NotOpt, p: P.zero}),
+      ("lhs", {typ: typ1, o: NotOpt, p: P.zero}),
+      ("rhs", {typ: typ2, o: NotOpt, p: P.zero}),
     |],
   );
 
 let rec fromJson = (json: Js.Json.t) : styp =>
   switch (Js.Json.classify(json)) {
   | JSONFalse
-  | JSONTrue => {t: Boolean, o: NotOpt, p: P.one}
-  | JSONNull => {t: Empty, o: Opt(P.one), p: P.one}
-  | JSONString(_) => {t: String, o: NotOpt, p: P.one}
-  | JSONNumber(_) => {t: Number, o: NotOpt, p: P.one}
+  | JSONTrue => {typ: Boolean, o: NotOpt, p: P.one}
+  | JSONNull => {typ: Empty, o: Opt(P.one), p: P.one}
+  | JSONString(_) => {typ: String, o: NotOpt, p: P.one}
+  | JSONNumber(_) => {typ: Number, o: NotOpt, p: P.one}
   | JSONObject(dict) =>
     let do_entry = ((lbl, v)) => {
       let styp = fromJson(v);
       (lbl, styp);
     };
     {
-      t:
+      typ:
         Object(
           Js.Dict.entries(dict) |. Array.map(do_entry) |. Js.Dict.fromArray,
         ),
@@ -33,17 +33,17 @@ let rec fromJson = (json: Js.Json.t) : styp =>
     };
   | JSONArray(a) =>
     a
-    |. Array.reduce({t: Empty, o: NotOpt, p: P.zero}, (styp, json) =>
+    |. Array.reduce({typ: Empty, o: NotOpt, p: P.zero}, (styp, json) =>
          styp ++ fromJson(json)
        )
-    |. (styp => {t: Array(styp), o: NotOpt, p: P.one})
+    |. (styp => {typ: Array(styp), o: NotOpt, p: P.one})
   }
 and (++) = (styp1, styp2) => {
-  let t = plusT(styp1.t, styp2.t);
+  let typ = plusTyp(styp1.typ, styp2.typ);
   let o = plusO(styp1.o, styp2.o);
   open! P;
   let p = styp1.p ++ styp2.p;
-  {t, o, p};
+  {typ, o, p};
 }
 and plusO = (o1, o2) =>
   switch (o1, o2) {
@@ -53,10 +53,10 @@ and plusO = (o1, o2) =>
     open! P;
     Opt(p1 ++ p2);
   }
-and plusT = (t1, t2) =>
-  switch (t1, t2) {
-  | (Annotation(_, t, _), _) => plusT(t, t2)
-  | (_, Annotation(_, t, _)) => plusT(t1, t)
+and plusTyp = (typ1, typ2) =>
+  switch (typ1, typ2) {
+  | (Annotation(_, typ, _), _) => plusTyp(typ, typ2)
+  | (_, Annotation(_, typ, _)) => plusTyp(typ1, typ)
   | (Empty, t)
   | (t, Empty) => t
   | (Number, Number) => Number
@@ -82,5 +82,5 @@ and plusT = (t1, t2) =>
   | (Boolean, _)
   | (_, Boolean)
   | (Object(_), _)
-  | (_, Object(_)) => typesNotMatched(t1, t2)
+  | (_, Object(_)) => typesNotMatched(typ1, typ2)
   };

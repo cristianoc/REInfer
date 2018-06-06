@@ -1,7 +1,7 @@
 open Belt;
 open Styp;
 
-type difft = {
+type diffStyp = {
   styp1: styp,
   styp2: styp,
   stypA1: styp,
@@ -9,17 +9,25 @@ type difft = {
   stypB: styp,
 };
 
+type diffTyp = {
+  typA1: typ,
+  typA2: typ,
+  typB: typ,
+};
+
+type t = diffStyp;
+
 /* Inline the differences in the B part */
 let inlineDifferences = true;
 
-let rec diffStyp = (styp1: styp, styp2: styp) : difft => {
-  let (tA1, tA2, tB) = diffT(styp1.t, styp2.t);
+let rec diffStyp = (styp1: styp, styp2: styp) : t => {
+  let {typA1, typA2, typB} = diffTyp(styp1.typ, styp2.typ);
   let (oA1, oA2, oB) = diffO(styp1.o, styp2.o);
   let pB = min(styp1.p, styp2.p);
   let (pA1, pA2) = (P.(styp1.p -- pB), P.(styp2.p -- pB));
-  let stypA1 = {t: tA1, o: oA1, p: pA1};
-  let stypA2 = {t: tA2, o: oA2, p: pA2};
-  let stypB = {t: tB, o: oB, p: pB};
+  let stypA1 = {typ: typA1, o: oA1, p: pA1};
+  let stypA2 = {typ: typA2, o: oA2, p: pA2};
+  let stypB = {typ: typB, o: oB, p: pB};
   open! TypeCheck;
   {styp1, styp2, stypA1, stypA2, stypB};
 }
@@ -33,14 +41,14 @@ and diffO = (o1: o, o2: o) : (o, o, o) =>
       Opt(min(p1, p2)),
     )
   }
-and diffT = (t1: t, t2: t) : (t, t, t) =>
-  switch (t1, t2) {
-  | (Empty | Annotation(_), _) => (Empty, t2, Empty)
-  | (_, Empty | Annotation(_)) => (t1, Empty, Empty)
+and diffTyp = (typ1: typ, typ2: typ) : diffTyp =>
+  switch (typ1, typ2) {
+  | (Empty | Annotation(_), _) => {typA1: Empty, typA2: typ2, typB: Empty}
+  | (_, Empty | Annotation(_)) => {typA1: typ1, typA2: Empty, typB: Empty}
 
-  | (Number, Number) => (Empty, Empty, Number)
-  | (String, String) => (Empty, Empty, String)
-  | (Boolean, Boolean) => (Empty, Empty, Boolean)
+  | (Number, Number) => {typA1: Empty, typA2: Empty, typB: Number}
+  | (String, String) => {typA1: Empty, typA2: Empty, typB: String}
+  | (Boolean, Boolean) => {typA1: Empty, typA2: Empty, typB: Boolean}
 
   | (Object(d1), Object(d2)) =>
     let dA1 = Js.Dict.empty();
@@ -72,19 +80,19 @@ and diffT = (t1: t, t2: t) : (t, t, t) =>
       };
     d2 |. Js.Dict.entries |. Array.forEach(doItem2);
     d1 |. Js.Dict.entries |. Array.forEach(doItem1);
-    let tA1 =
+    let typA1 =
       dA1 |. Js.Dict.entries |. Array.length == 0 ? Empty : dA1 |. Object;
-    let tA2 =
+    let typA2 =
       dA2 |. Js.Dict.entries |. Array.length == 0 ? Empty : dA2 |. Object;
-    let tB = dB |. Object;
-    (tA1, tA2, tB);
+    let typB = dB |. Object;
+    {typA1, typA2, typB};
 
   | (Array(styp1), Array(styp2)) =>
     let {stypA1, stypA2, stypB} = diffStyp(styp1, styp2);
-    let tA1 = stypIsEmpty(stypA1) ? Empty : Array(stypA1);
-    let tA2 = stypIsEmpty(stypA2) ? Empty : Array(stypA2);
-    let tB = Array(stypB);
-    (tA1, tA2, tB);
+    let typA1 = stypIsEmpty(stypA1) ? Empty : Array(stypA1);
+    let typA2 = stypIsEmpty(stypA2) ? Empty : Array(stypA2);
+    let typB = Array(stypB);
+    {typA1, typA2, typB};
   | (Number, _)
   | (_, Number)
   | (String, _)
@@ -92,7 +100,11 @@ and diffT = (t1: t, t2: t) : (t, t, t) =>
   | (Boolean, _)
   | (_, Boolean)
   | (Object(_), _)
-  | (_, Object(_)) => (t1, t2, TypeCheck.typesNotMatched(t1, t2))
+  | (_, Object(_)) => {
+      typA1: typ1,
+      typA2: typ2,
+      typB: TypeCheck.typesNotMatched(typ1, typ2),
+    }
   };
 
 let rec combine = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
@@ -102,36 +114,36 @@ let rec combine = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
       || stypA2.o != NotOpt) {
     {
       ...stypB,
-      t:
+      typ:
         Annotation(
           "common",
-          stypB.t,
+          stypB.typ,
           [|("lhs", stypA1), ("rhs", stypA2)|],
         ),
     };
   } else {
-    {...stypB, t: combineT(stypA1.t, stypA2.t, stypB.t)};
+    {...stypB, typ: combineT(stypA1.typ, stypA2.typ, stypB.typ)};
   }
-and combineT = (tA1: t, tA2: t, tB: t) : t =>
-  switch (tA1, tA2, tB) {
+and combineT = (typA1: typ, typA2: typ, typB: typ) : typ =>
+  switch (typA1, typA2, typB) {
   | (Array(_) | Empty, Array(_) | Empty, Array(stypB)) =>
-    let getStyp = t =>
-      switch (t) {
+    let getStyp = typ =>
+      switch (typ) {
       | Array(styp) => styp
       | _ => stypEmpty
       };
-    let stypA1 = tA1 |. getStyp;
-    let stypA2 = tA2 |. getStyp;
+    let stypA1 = typA1 |. getStyp;
+    let stypA2 = typA2 |. getStyp;
     combine(stypA1, stypA2, stypB) |. Array;
   | (Object(_) | Empty, Object(_) | Empty, Object(dictB)) =>
     let d = Js.Dict.empty();
-    let getDict = t =>
-      switch (t) {
+    let getDict = typ =>
+      switch (typ) {
       | Object(dict) => dict
       | _ => Js.Dict.empty()
       };
-    let dictA1 = tA1 |. getDict;
-    let dictA2 = tA2 |. getDict;
+    let dictA1 = typA1 |. getDict;
+    let dictA2 = typA2 |. getDict;
     let doItem = lbl => {
       let getStyp = dict =>
         switch (dict |. Js.Dict.get(lbl)) {
@@ -153,7 +165,7 @@ and combineT = (tA1: t, tA2: t, tB: t) : t =>
       |. forEach(doItem)
     );
     Object(d);
-  | _ => tB
+  | _ => typB
   };
 
 let diff = (styp1, styp2) => {
@@ -169,5 +181,3 @@ let diffCheck = (styp1, styp2) => {
   inlineDifferences ?
     {...d, stypB: combine(d.stypA1, d.stypA2, d.stypB)} : d;
 };
-
-type t = difft;

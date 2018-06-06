@@ -55,14 +55,14 @@ let rec toJsonStyp = (styp: styp, ~ctx: p) : Js.Json.t =>
       || skip0OutOf0
       && styp.p
       |. is0OutOf0(~ctx);
-    let jsonT = styp.t |. toJsonT(~ctx=styp.p);
+    let jsonT = styp.typ |. toJsonTyp(~ctx=styp.p);
     switch (skipP, styp.o) {
     | (true, NotOpt) => jsonT
     | _ => jsonT |. addStats(~o=styp.o, ~p=styp.p, ~skipP, ~ctx)
     };
   }
-and toJsonT = (t: t, ~ctx: p) : Js.Json.t =>
-  switch (t) {
+and toJsonTyp = (typ: typ, ~ctx: p) : Js.Json.t =>
+  switch (typ) {
   | Empty => Js.Json.string("empty")
   | Number => Js.Json.string("number")
   | String => Js.Json.string("string")
@@ -76,6 +76,6 @@ and toJsonT = (t: t, ~ctx: p) : Js.Json.t =>
   | Array(styp) when simpleEmptyArray && stypIsEmpty(styp) =>
     [||] |. Js.Json.array
   | Array(styp) => [|styp |. toJsonStyp(~ctx)|] |. Js.Json.array
-  | Annotation(_, t, _) => t |. toJsonT(~ctx)
+  | Annotation(_, typ, _) => typ |. toJsonTyp(~ctx)
   };
 let styp = styp => styp |. toJsonStyp(~ctx=P.zero) |. Js.Json.stringify;

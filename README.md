@@ -64,17 +64,17 @@ obj ::= { x1:val, …, xn:val }
 ```
 ### Types
 
-Types: `typ`
+Types: `t`
 
 ```
-typ ::=
+t ::=
   empty |
   number |
   string |
   boolean |
-  typ? |
-  {x1:typ, …, xn:typ} |
-  [ typ ]
+  t? |
+  {x1:t, …, xn:t} |
+  [ t ]
 ```
 
 ### Statistical Types
@@ -87,13 +87,13 @@ o ::= opt(p) | notOpt
 ```
 
 ```
-styp ::= (t,o)::p
+styp ::= (typ,o)::p
 ```
 
-Abbreviation: write `t?n::p` or `t::p`.
+Abbreviation: write `typ?n::p` or `typ::p`.
 
 ```
-t ::=
+typ ::=
   empty |
   number |
   string |
@@ -105,7 +105,7 @@ t ::=
 ### Type checking for Types
 
 
-Type checking for `typ:  |- val : typ`
+Type checking for `t`: ` |- val : t`
 
 ```
 |- 123 : number
@@ -120,13 +120,13 @@ Type checking for `typ:  |- val : typ`
 ```
 
 ```
-|- null : typ?
+|- null : t?
 ```
 
 ```
-|- val1:typ1  …  |- valn:typn
+|- val1:t1  …  |- valn:tn
 ————————————————————————————————————————————————
-|- {x1:val1, …, xn:valn} : {x1:typ1, …, xn:typn}
+|- {x1:val1, …, xn:valn} : {x1:t1, …, xn:tn}
 ```
 
 ```
@@ -134,20 +134,20 @@ Type checking for `typ:  |- val : typ`
 ```
 
 ```
-|- val1:typ  …  |- valn:typ  (n>0)
+|- val1:t  …  |- valn:t  (n>0)
 ——————————————————————————————————
-|- [val1, …, valn] : [typ::n]
+|- [val1, …, valn] : [t]
 ```
 
 
 ### Erasure of Statistical Types
 
-Erasure: `|- |styp| = typ`
+Erasure: `|- |styp| = t`
 
 ```
-|- |t| = typ
+|- |typ| = t
 ———————————————————
-|- |(t,o)::p| = typ
+|- |(typ,o)::p| = t
 ```
 
 ```
@@ -167,15 +167,15 @@ Erasure: `|- |styp| = typ`
 ```
 
 ```
-|- |styp1| = typ1 … |- |stypn| = typn
+|- |styp1| = t1 … |- |stypn| = tn
 ————————————————————————————————————————————————————
-|- |{x1:styp1, …, xn:stypn}| = {x1:typ1, …, xn:typn}
+|- |{x1:styp1, …, xn:stypn}| = {x1:t1, …, xn:tn}
 ```
 
 ```
-|- |styp| = typ
+|- |styp| = t
 ———————————————————
-|- |[styp]| = [typ]
+|- |[styp]| = [t]
 ```
 
 ### Type checking for Statistical Types
@@ -197,7 +197,7 @@ Type checking for styp:  `|- val : styp`
 
 ```
 ———————————————————-
-|- null : (t?1 :: 1)
+|- null : (typ?1 :: 1)
 ```
 
 ```
@@ -219,9 +219,9 @@ Type checking for styp:  `|- val : styp`
 weakening nullable:
 
 ```
- |- val : (t::p)
+ |- val : (typ::p)
 ——————————————————
-|- val : (t?0 :: p)
+|- val : (typ?0 :: p)
 ```
 
 weakening obj:
@@ -229,18 +229,18 @@ weakening obj:
 ```
 |- val : ({x1:styp1, …, xn:stypn}, o) :: p
 ———————————————————————————————————————————————————————
-|- val : ({x1:styp1, …, xn:stypn, x0:(t :: 0)}, o) :: p
+|- val : ({x1:styp1, …, xn:stypn, x0:(typ :: 0)}, o) :: p
 ```
 
 
 ### Sum of Statistical Types
 
-Combining `styp: |- styp1 + styp2 = styp` and `|- t1 + t2 = t` and `|- o1 + o2 = o`
+Combining `styp: |- styp1 + styp2 = styp` and `|- typ1 + typ2 = typ` and `|- o1 + o2 = o`
 
 ```
-|- t1+t2=t  |-o1+o2=o  p1+p2=p
-————————————————————————————————————————
-|- (t1,o1)::p1 + (t2,o2)::p2 = (t::o)::p
+|- typ1+typ2=typ  |-o1+o2=o  p1+p2=p
+——————————————————————————————————————————————
+|- (typ1,o1)::p1 + (typ2,o2)::p2 = (typ::o)::p
 ```
 
 ```
@@ -249,7 +249,7 @@ Combining `styp: |- styp1 + styp2 = styp` and `|- t1 + t2 = t` and `|- o1 + o2 =
 
 
 ```
-|- empty + t = t + empty = t
+|- empty + typ = typ + empty = typ
 ```
 
 ```
@@ -292,7 +292,7 @@ Statistical type inference: `|- val1, …, valn -> styp`
 
 ### Abduction for Statistical Types
 
-Abduction: `|- styp1 + <stypA> = styp2` and `|- t1 + <tA> = t2` and `|- o1 + <oA> = o2`.
+Abduction: `|- styp1 + <stypA> = styp2` and `|- typ1 + <typA> = typ2` and `|- o1 + <oA> = o2`.
 
 Want smallest solution w.r.t. `<=` where `styp1 <= styp2` if there is `styp` such that `|- styp1 + styp = styp2`.
 
@@ -302,9 +302,9 @@ Abduction computes the smallest representation of the difference between statist
 
 
 ```
-|- t1 + <tA> = t2  |- o1 + <oA> = o2  |- p1 + <pA> = p2
-———————————————————————————————————————————————————————
-|- (t1,o1)::p2 + <(tA,oA)::pA> = (t2,o2)::p2
+|- typ1 + <typA> = typ2  |- o1 + <oA> = o2  |- p1 + <pA> = p2
+—————————————————————————————————————————————————————————————
+|- (typ1,o1)::p2 + <(typA,oA)::pA> = (typ2,o2)::p2
 ```
 
 ```
@@ -327,7 +327,7 @@ Abduction computes the smallest representation of the difference between statist
 
 
 ```
-|- empty + <t> = t
+|- empty + <typ> = typ
 ```
 
 ```
@@ -357,21 +357,21 @@ Abduction computes the smallest representation of the difference between statist
 
 
 ```
-|- {G1} + <{GA}> = {}  |- t1 + <tA> = t1  |- o1 + <oA> = notOpt
-———————————————————————————————————————————————————————————————
-|- {G1, x:((t1,o1)::p1)} + <{GA, x:((tA,oA)::(-p1))}> = {}
+|- {G1} + <{GA}> = {}  |- typ1 + <typA> = typ1  |- o1 + <oA> = notOpt
+—————————————————————————————————————————————————————————————————————
+|- {G1, x:((typ1,o1)::p1)} + <{GA, x:((typA,oA)::(-p1))}> = {}
 ```
 
 ```
-|- t1 + <{G, x:(empty, notOpt)::0> = t2
+|- typ1 + <{G, x:(empty, notOpt)::0> = typ2
 ———————————————————————————————————————
-|- t1 + <{G}> = t2
+|- typ1 + <{G}> = typ2
 ```
 
 ```
-|- t1 + <{}> = t2
+|- typ1 + <{}> = typ2
 ————————————————————
-|- t1 + <empty> = t2
+|- typ1 + <empty> = typ2
 ```
 
 ```
@@ -381,16 +381,16 @@ Abduction computes the smallest representation of the difference between statist
 ```
 
 ```
-|- t1 + <[(empty, notOpt)::0]> = t2
+|- typ1 + <[(empty, notOpt)::0]> = typ2
 ———————————————————————————————————
-|- t1 + <empty> = t2
+|- typ1 + <empty> = typ2
 ```
 
 
 ### Diff for Statistical Types
 
 Abduction: `|- <stypA1,stypA2> + <stypB> = styp1,styp2`
-and `|- <tA1,tA2> + <tB> = t1,t2` and `|- <oA1,oA2> + <oB> = o1,o2`.
+and `|- <typA1,typA2> + <typB> = typ1,typ2` and `|- <oA1,oA2> + <oB> = o1,o2`.
 
 
 
@@ -401,12 +401,12 @@ Let `stypEmpty = (empty, notOpt, 0)`.
 
 
 ```
-|- <tA1,tA2> + <tB> = (t1,t2)  |- <oA1,oA2> + <oB> = o1,o2
+|- <tA1,tA2> + <tB> = (typ1,typ2)  |- <oA1,oA2> + <oB> = o1,o2
 pB = min(p1,p2)  pA1 = p1-pB  pA2 = p2-pB
-stypA1 = (tA1,oA1)::pA1  stypA2 = (tA2,oA2)::pA2
+stypA1 = (typA1,oA1)::pA1  stypA2 = (typA2,oA2)::pA2
 stypB = (tB,oB)::pB
-——————————————————————————————————————————————————————————
-|- <stypA1,stypA2> + <stypB> = (t1,o1)::p1,(t2,o2)::p2
+——————————————————————————————————————————————————————————————
+|- <stypA1,stypA2> + <stypB> = (typ1,o1)::p1,(typ2,o2)::p2
 ```
 
 
@@ -436,11 +436,11 @@ stypB = (tB,oB)::pB
 
 
 ```
-|- <empty,t2> + <empty> = empty,t2
+|- <empty,typ2> + <empty> = empty,typ2
 ```
 
 ```
-|- <t1,empty> + <empty> = t1,empty
+|- <typ1,empty> + <empty> = typ1,empty
 ```
 
 ```
@@ -458,39 +458,39 @@ stypB = (tB,oB)::pB
 ```
 |- <{GA1},{GA2}> + <{GB}> = {G1},{G2}
 |- <stypA1,stypA2> + <stypB> = styp1,styp2
-tA1 = stypA1==stypEmpty ? {GA1,x:stypA1} : {GA1}
-tA2 = stypA2==stypEmpty ? {GA2,x:stypA2} : {GA2}
-tAB = {GB,x:stypB}
-————————————————————————————————————————————————
-|- <tA1,tA2> + <tB> = {G1,x:styp1},{G2,x2:styp2}
+typA1 = stypA1==stypEmpty ? {GA1,x:stypA1} : {GA1}
+typA2 = stypA2==stypEmpty ? {GA2,x:stypA2} : {GA2}
+typB = {GB,x:stypB}
+——————————————————————————————————————————————————————
+|- <typA1,typA2> + <typB> = {G1,x:styp1},{G2,x2:styp2}
 ```
 
 
 ```
 |- <{GA1},{GA2}> + <{GB}> = {G1},{G2}  (x not in G2)
-tA1 = styp1==stypEmpty ? {GA1,x:styp1} : {GA1}
+typA1 = styp1==stypEmpty ? {GA1,x:styp1} : {GA1}
 ————————————————————————————————————————————————————
-|- <tA1,{GA2}> + <{GB}> = {G1,x:styp1},{G2}
+|- <typA1,{GA2}> + <{GB}> = {G1,x:styp1},{G2}
 ```
 
 
 ```
 |- <{GA1},{GA2}> + <{GB}> = {G1},{G2}  (x not in G1)
-tA2 = styp2==stypEmpty ? {GA2,x:styp2} : {GA2}
+typA2 = styp2==stypEmpty ? {GA2,x:styp2} : {GA2}
 ————————————————————————————————————————————————————
 |- <{GA1},tA2> + <{GB}> = {G1},{G2,x:styp2}
 ```
 
 ```
-|- <{},tA2> + <tB> = t1,t2
-—————————————————————————————
-|- <empty,tA2> + <tB> = t1,t2
+|- <{},typA2> + <typB> = typ1,typ2
+—————————————————————————————————————
+|- <empty,typA2> + <typB> = typ1,typ2
 ```
 
 ```
-|- <tA1,{}> + <tB> = t1,t2
-—————————————————————————————
-|- <tA1,empty> + <tB> = t1,t2
+|- <typA1,{}> + <typB> = typ1,typ2
+—————————————————————————————————————
+|- <typA1,empty> + <typB> = typ1,typ2
 ```
 
 ```
@@ -500,13 +500,13 @@ tA2 = styp2==stypEmpty ? {GA2,x:styp2} : {GA2}
 ```
 
 ```
-|- <[stypEmpty], tA2> + <tB> = t1,t2
-————————————————————————————————————
-|- <empty, tA2> + <tB> = t1,t2
+|- <[stypEmpty], typA2> + <typB> = typ1,typ2
+————————————————————————————————————————————
+|- <empty, typA2> + <typB> = typ1,typ2
 ```
 
 ```
-|- <tA1, [stypEmpty]> + <tB> = t1,t2
-————————————————————————————————————
-|- <tA1, empty> + <tB> = t1,t2
+|- <typA1, [stypEmpty]> + <typB> = typ1,typ2
+————————————————————————————————————————————
+|- <typA1, empty> + <typB> = typ1,typ2
 ```

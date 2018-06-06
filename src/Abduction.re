@@ -2,15 +2,15 @@ open Belt;
 open Styp;
 let rec abduceStyp = (styp1: styp, styp2: styp) : styp =>
   switch (styp1, styp2) {
-  | ({t: t1, o: o1, p: p1}, {t: t2, o: o2, p: p2}) =>
-    let t = abduceT(t1, t2);
+  | ({typ: typ1, o: o1, p: p1}, {typ: typ2, o: o2, p: p2}) =>
+    let typ = abduceTyp(typ1, typ2);
     let o = abduceO(o1, o2);
     let p = P.(p2 -- p1);
-    {t, o, p};
+    {typ, o, p};
   }
-and abduceT = (t1: t, t2: t) : t =>
-  switch (t1, t2) {
-  | (Empty, _) => t2
+and abduceTyp = (typ1: typ, typ2: typ) : typ =>
+  switch (typ1, typ2) {
+  | (Empty, _) => typ2
   | (Number, Number) => Empty
   | (String, String) => Empty
   | (Boolean, Boolean) => Empty
@@ -31,10 +31,10 @@ and abduceT = (t1: t, t2: t) : t =>
     let doItem1 = ((lbl, styp1)) =>
       switch (d2 |. Js.Dict.get(lbl)) {
       | None =>
-        let tA = abduceT(styp1.t, styp1.t);
+        let typA = abduceTyp(styp1.typ, styp1.typ);
         let oA = abduceO(styp1.o, NotOpt);
         let pA = P.(zero -- styp1.p);
-        let stypA = {t: tA, o: oA, p: pA};
+        let stypA = {typ: typA, o: oA, p: pA};
         if (! stypIsEmpty(stypA)) {
           d |. Js.Dict.set(lbl, stypA);
         };
