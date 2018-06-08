@@ -50,7 +50,7 @@ let testSmallDiff = n => {
     ({| [{"x": {"y" : "hello"}}] |}, {| [{"x": {"z" : "hello"}}] |}),
     ("null", "3"),
     ("[null,2]", "[3]"),
-    ({| {"x":[1,2,null]} |}, {| {"x":[1,2,3,4,5]} |}),
+    ({| [{"a":3},{"b":3}] |}, {| [] |}),
   |];
   let styp1 = examples[n] |. fst |. Js.Json.parseExn |. fromJson;
   let styp2 = examples[n] |. snd |. Js.Json.parseExn |. fromJson;
@@ -67,6 +67,24 @@ let testBigDiff = () => {
   diff;
 };
 
+let testDynamicallyTypedJson = () => {
+  open! DynTypedJson;
+
+  let json1 = Js.Json.parseExn({| null |});
+  let json2 = Js.Json.parseExn({| {"b":3} |});
+
+  let x = ref(json1);
+  Js.log2("x:", x.json);
+
+  x := json2;
+  Js.log2("x:", x.json);
+
+  let x1 = x @ "b";
+  Js.log2("x1:", x1.json);
+};
+
 let res = testSmallDiff(4);
 /* let res = testBigDiff(); */
 let test = () => res;
+
+/* testDynamicallyTypedJson(); */
