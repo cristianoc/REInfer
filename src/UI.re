@@ -127,25 +127,46 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
       />
       (node("]"))
     </span>
-  | Annotation(s, t, arr) =>
-    let doEntry = (i, (lbl, styp)) =>
-      styp |. stypIsEmpty ?
+  | Union(styps) =>
+    let doEntry = (i, styp) =>
+      <TreeView
+        key=(string_of_int(i))
+        nodeLabel=(node(string_of_int(i)))
+        collapsed=false
+        child=(styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
+      />;
+
+    <div>
+      (node(~style=Color.(style(brown)), "union"))
+      (
+        styps
+        |. List.mapWithIndex(doEntry)
+        |. List.toArray
+        |. ReasonReact.array
+      )
+    </div>;
+
+  | Diff(t, lhs, rhs) =>
+    let side = (~left) => {
+      let lbl = left ? "lhs" : "rhs";
+      let styp = left ? lhs : rhs;
+      Styp.stypIsEmpty(styp) ?
         ReasonReact.null :
         <TreeView
-          key=(string_of_int(i))
+          key=lbl
           nodeLabel=(node(lbl))
           collapsed=true
           child=(styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
         />;
-
+    };
     <div>
       <TreeView
-        key=s
-        nodeLabel=(node(~style=Color.(style(brown)), s))
+        nodeLabel=(node(~style=Color.(style(brown)), "common"))
         collapsed=true
         child=(t |. toComponentT(~ctx, ~fmt))
       />
-      (ReasonReact.array(arr |. Array.mapWithIndex(doEntry)))
+      (side(~left=true))
+      (side(~left=false))
     </div>;
   };
 

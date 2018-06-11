@@ -76,6 +76,8 @@ and toJsonTyp = (typ: typ, ~ctx: p) : Js.Json.t =>
   | Array(styp) when simpleEmptyArray && stypIsEmpty(styp) =>
     [||] |. Js.Json.array
   | Array(styp) => [|styp |. toJsonStyp(~ctx)|] |. Js.Json.array
-  | Annotation(_, typ, _) => typ |. toJsonTyp(~ctx)
+  | Union(styps) =>
+    styps |. List.map(toJsonStyp(~ctx)) |. List.toArray |. Js.Json.array
+  | Diff(typ, _, _) => typ |. toJsonTyp(~ctx)
   };
 let styp = styp => styp |. toJsonStyp(~ctx=P.zero) |. Js.Json.stringify;

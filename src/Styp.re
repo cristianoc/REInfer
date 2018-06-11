@@ -19,9 +19,11 @@ module P: {
 };
 
 type p = P.t;
+
 type o =
   | NotOpt
   | Opt(p);
+
 type typ =
   | Empty
   | Number
@@ -29,7 +31,8 @@ type typ =
   | Boolean
   | Object(Js.Dict.t(styp))
   | Array(styp)
-  | Annotation(string, typ, array((string, styp)))
+  | Union(list(styp))
+  | Diff(typ, styp, styp)
 and styp = {
   typ,
   o,

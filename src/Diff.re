@@ -43,8 +43,8 @@ and diffO = (o1: o, o2: o) : (o, o, o) =>
   }
 and diffTyp = (typ1: typ, typ2: typ) : diffTyp =>
   switch (typ1, typ2) {
-  | (Empty | Annotation(_), _) => {typA1: Empty, typA2: typ2, typB: Empty}
-  | (_, Empty | Annotation(_)) => {typA1: typ1, typA2: Empty, typB: Empty}
+  | (Empty | Diff(_), _) => {typA1: Empty, typA2: typ2, typB: Empty}
+  | (_, Empty | Diff(_)) => {typA1: typ1, typA2: Empty, typB: Empty}
 
   | (Number, Number) => {typA1: Empty, typA2: Empty, typB: Number}
   | (String, String) => {typA1: Empty, typA2: Empty, typB: String}
@@ -100,11 +100,9 @@ and diffTyp = (typ1: typ, typ2: typ) : diffTyp =>
   | (Boolean, _)
   | (_, Boolean)
   | (Object(_), _)
-  | (_, Object(_)) => {
-      typA1: typ1,
-      typA2: typ2,
-      typB: TypeCheck.typesNotMatched(typ1, typ2),
-    }
+  | (_, Object(_))
+  | (Union(_), _)
+  | (_, Union(_)) => assert(false)
   };
 
 let rec combine = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
@@ -112,15 +110,7 @@ let rec combine = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
       || stypA1.o != NotOpt
       || stypA2.p != P.zero
       || stypA2.o != NotOpt) {
-    {
-      ...stypB,
-      typ:
-        Annotation(
-          "common",
-          stypB.typ,
-          [|("lhs", stypA1), ("rhs", stypA2)|],
-        ),
-    };
+    {...stypB, typ: Diff(stypB.typ, stypA1, stypA2)};
   } else {
     {...stypB, typ: combineT(stypA1.typ, stypA2.typ, stypB.typ)};
   }
