@@ -512,7 +512,7 @@ typ +=
 
 Write ```typ1 # typ2``` when there is no `typ` such that `|- typ1 + typ2 = typ`.
 
-The untion of types `|- typ1 U typ2 = typ` is defined below.
+The union of types `|- typ1 U typ2 = typ` is defined below.
 
 
 ```
