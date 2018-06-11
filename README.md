@@ -225,7 +225,9 @@ weakening obj:
 
 ### Sum of Statistical Types
 
-Combining `styp: |- styp1 + styp2 = styp` and `|- typ1 + typ2 = typ` and `|- o1 + o2 = o`
+Sum operations `|- styp1 + styp2 = styp` and `|- typ1 + typ2 = typ` and `|- o1 + o2 = o`
+
+Notice this defines a partial commutative monoid.
 
 ```
 |- typ1+typ2=typ  |-o1+o2=o  p1+p2=p
@@ -499,4 +501,40 @@ typA2 = styp2==stypEmpty ? {GA2,x:styp2} : {GA2}
 |- <typA1, [stypEmpty]> + <typB> = typ1,typ2
 ————————————————————————————————————————————
 |- <typA1, empty> + <typB> = typ1,typ2
+```
+
+### Extension: Union Types
+
+```
+typ +=
+  styp1 | ... | stypn
+```
+
+Write ```typ1 # typ2``` when there is no `typ` such that `|- typ1 + typ2 = typ`.
+
+The untion of types `|- typ1 U typ2 = typ` is defined below.
+
+
+```
+(typ1 # typ2)  |- typ1 U typ2 = typ  |-o1+o2=o  p1+p2=p
+———————————————————————————————————————————————————————
+|- (typ1,o1)::p1 + (typ2,o2)::p2 = (typ::o)::p
+```
+
+```
+|- typ1 # typ  |- typ2 U typ = typ2'
+—————————————————————————————————————
+|- (typ1 | typ2) U typ = typ1 | typ2'
+```
+
+```
+      |- typ1 + typ = typ1'
+—————————————————————————————————————
+|- (typ1 | typ2) U typ = typ1' | typ2
+```
+
+```
+|- typ U typ1 = typ'  |- typ' U typ2 = typ''
+————————————————————————————————————————————
+|- typ U (typ1 | typ2) = typ''
 ```
