@@ -393,11 +393,11 @@ Let `stypEmpty = (empty, notOpt, 0)`.
 
 
 ```
-|- <tA1,tA2> + <tB> = (typ1,typ2)  |- <oA1,oA2> + <oB> = o1,o2
+|- <typA1,typA2> + <typB> = (typ1,typ2)  |- <oA1,oA2> + <oB> = o1,o2
 pB = min(p1,p2)  pA1 = p1-pB  pA2 = p2-pB
 stypA1 = (typA1,oA1)::pA1  stypA2 = (typA2,oA2)::pA2
-stypB = (tB,oB)::pB
-——————————————————————————————————————————————————————————————
+stypB = (typB,oB)::pB
+————————————————————————————————————————————————————————————————————
 |- <stypA1,stypA2> + <stypB> = (typ1,o1)::p1,(typ2,o2)::p2
 ```
 
@@ -506,35 +506,105 @@ typA2 = styp2==stypEmpty ? {GA2,x:styp2} : {GA2}
 ### Extension: Union Types
 
 ```
-typ +=
-  styp1 | ... | stypn
+stypU ::= styp1 | ... | stypn
+
+typ += union(stypU)
 ```
 
-Write ```typ1 # typ2``` when there is no `typ` such that `|- typ1 + typ2 = typ`.
+Write ```typ1 # typ2``` when there is no `typ` such that `|- typ1 + typ2 = typ`, with the corresponding extension ```styp1 # styp2```.
 
-The union of types `|- typ1 U typ2 = typ` is defined below.
+The sum of `stypU` written `|- stypU1 + stypU2 = stypU` is defined below.
+The conversion `|- u(styp) = stypU` is also defined below.
 
 
 ```
-(typ1 # typ2)  |- typ1 U typ2 = typ  |-o1+o2=o  p1+p2=p
+styp = (typ:o)::p
+typ not of the form u(stypU)
+————————————————————————————
+|- u(styp) = styp
+```
+
+```
+styp = (typ:o)::p
+typ = u(stypU)
+——————————————————
+|- u(styp) = stypU
+```
+
+```
+styp1 = (typ1,o1)::p1  styp2 = (typ2,o2)::p2
+(typ1 # typ2)
+u(styp1) = stypU1  u(styp2) = stypU2
+|- stypU1 U stypU2 = stypU  |-o1+o2=o  p1+p2=p
+——————————————————————————————————————————————
+|- styp1 + styp2 = (union(stypU)::o)::p
+```
+
+```
+ |- styp1 + styp2 = styp  |- stypU1 + stypU2 = stypU
 ———————————————————————————————————————————————————————
-|- (typ1,o1)::p1 + (typ2,o2)::p2 = (typ::o)::p
+|- (styp1 | stypU1) + (styp2 | stypU2) = (styp | stypU)
 ```
 
 ```
-|- typ1 # typ  |- typ2 U typ = typ2'
-—————————————————————————————————————
-|- (typ1 | typ2) U typ = typ1 | typ2'
+stypU1 # stypU2 (for all pairs)
+—————————————————————————————————————————————————————
+|- stypU1 + stypU2 = stypU1 | stypU2
 ```
 
-```
-      |- typ1 + typ = typ1'
-—————————————————————————————————————
-|- (typ1 | typ2) U typ = typ1' | typ2
-```
+Diff is extended as follows:
 
 ```
-|- typ U typ1 = typ'  |- typ' U typ2 = typ''
+styp1 = (typ1,o1)::p1  styp2 = (typ2,o2)::p2
+typ1 = union(stypU1)
+typ2 not of the form union(-)
+u(styp2) = stypU2
+styp2' = (union(stypU2),o2)::p2
+|- <stypA1,stypA2> + <stypB> = styp1,styp2'
 ————————————————————————————————————————————
-|- typ U (typ1 | typ2) = typ''
+|- <stypA1,stypA2> + <stypB> = styp1,styp2
 ```
+
+```
+styp1 = (typ1,o1)::p1  styp2 = (typ2,o2)::p2
+typ1 not of the form union(-)
+typ2 = union(stypU2)
+u(styp1) = stypU1
+styp1' = (union(stypU1),o1)::p1
+|- <stypA1,stypA2> + <stypB> = styp1',styp2
+————————————————————————————————————————————
+|- <stypA1,stypA2> + <stypB> = styp1,styp2
+```
+
+```
+styp1 = (typ1,o1)::p1  styp2 = (typ2,o2)::p2
+typ1 = union(stypU1)  typ2 = union(stypU2)
+|- <oA1,oA2> + <oB> = o1,o2
+|- <pA1,pA2> + <pB> = p1,p2
+|- <stypUA1,stypUA2> + <stypUB> = stypU1,stypU2
+stypA1 = (union(stypUA1),oA1)::pA1  stypA2 = (union(stypUA2),oA2)::pA2
+stypB = (union(stypUB),oB)::pB
+——————————————————————————————————————————————————————————————————————
+|- <stypA1,stypA2> + <stypB> = styp1,styp2
+```
+
+```
+styp1 = (typ1,o1)::p1  styp2 = (typ2,o2)::p2
+|- typ1 + typ2 = typ
+|- <stypA1,stypA2> + <stypB> = styp1,styp2
+|- <stypUA1,stypUA2> + <stypUB> = stypU1,stypU2
+stupUA1' = stypA1 | stypUA1  stupUA2' = stypA2 | stypUA2
+stupUB' = stypB | stypUB
+——————————————————————————————————————————————————————————————————————
+|- <stypUA1',stypUA2'> + <stypUB'> = (styp1 | stypU1),(styp2 | stypU2)
+```
+
+
+```
+stypU1 # stypU2 (for all pairs)
+——————————————————————————————————————————————————————————————————————
+|- <stypU1,stypU2> + <empty> = stypU1,stypU2
+```
+
+
+
