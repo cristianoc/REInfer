@@ -32,7 +32,7 @@ and plusStyp = (styp1, styp2) => {
   let typ =
     switch (plusTyp(styp1.typ, styp2.typ)) {
     | Some(typ) => typ
-    | None => union(styp1 |. stypToUnion, styp2 |. stypToUnion)
+    | None => plusUnion(styp1 |. stypToUnion, styp2 |. stypToUnion)
     };
   let o = plusO(styp1.o, styp2.o);
   open! P;
@@ -80,20 +80,26 @@ and plusTyp = (typ1, typ2) : option(typ) =>
   | (Union(_), _)
   | (_, Union(_)) => None
   }
-and union = (styps1, styps2) => {
-  let rec combine = (ls1, ls2) =>
-    switch (ls1, ls2) {
-    | ([t1, ...ts1], [t2, ...ts2]) =>
-      if (plusTyp(t1.typ, t2.typ) != None) {
-        [t1 ++ t2, ...combine(ts1, ts2)];
-      } else if (ts2 == []) {
-        [t1, ...combine(ts1, ls2)];
+and plusUnion = (styps1, styps2) => {
+  let rec findMatch = (t, ts, acc) =>
+    switch (ts) {
+    | [t1, ...ts1] =>
+      if (plusTyp(t.typ, t1.typ) != None) {
+        Some((t1, acc |. List.reverse |. List.concat(ts1)));
       } else {
-        combine(ls1, ts2) |. combine([t2]);
+        findMatch(t, ts1, [t1, ...acc]);
       }
-    | ([], ts)
-    | (ts, []) => ts
+    | [] => None
     };
-  combine(styps1, styps2) |. Union;
+  let rec plus = (ls1, ls2) =>
+    switch (ls1, ls2) {
+    | ([t1, ...ts1], _) =>
+      switch (findMatch(t1, ls2, [])) {
+      | None => [t1, ...plus(ts1, ls2)]
+      | Some((t2, ts2)) => [plusStyp(t1, t2), ...plus(ts1, ts2)]
+      }
+    | ([], ts) => ts
+    };
+  plus(styps1, styps2) |. Union;
 }
 and (++) = (styp1, styp2) => plusStyp(styp1, styp2);
