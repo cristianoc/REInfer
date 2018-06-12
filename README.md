@@ -1,4 +1,12 @@
-## Statistical Type Inference and Diff for sampled JSON data
+## ReInfer: Runtime Extended Inference
+
+REInfer performs runtime extended type inference on json data. Compared to traditional types, the extended types incorporate some numerical information, such as the number of times a field appears in the data, or the number of times it is null.
+
+A facility is provided to compare inferred types. This follows the idea of a diff algorithm which takes two values and returns the difference. The difference consists of a common part plus two deltas. Deltas are applied using a sum operation for extended types. The diff algorithm borrows and extends ideas from abduction for shape analysis, applied to type theory instead of program logic.
+
+A simple UI is provided to experiment with the primitives: it can be used to visualize inferred types and their difference.
+
+There is a thought experiment exploring of the use of runtime type inference in conjunction with runtime type checking. This combination gives an instrumented semantics that can be used to execute programs. This instrumented semantics has the peculiar property that it can fail at run time in cases where the program is not statically typable. In contrast to ordinary testing, this also applies to programs that **do not fail** when executed under a normal semantics.
 
 
 ## Run Project
