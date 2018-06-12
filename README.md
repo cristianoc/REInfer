@@ -1,4 +1,5 @@
-## Statistical Type Inference and Abduction for sampled JSON data
+## Statistical Type Inference and Diff for sampled JSON data
+
 
 ## Run Project
 
@@ -37,7 +38,23 @@ which represented in % form is
 So `"x"` is nullable, and 50% of the time is present and not null.
 Instead `"y"` is a number, and is present 50% of the time.
 
+## References
+
+* Tree view UI adapted from [react-treeview](https://github.com/chenglou/react-treeview).
+
+* Abduction in shape analysis <https://dl.acm.org/citation.cfm?id=2049700>.
+
+## License
+
+This project is [MIT-licensed](./LICENSE.md).
+
+
+# Do Not Read
+
+Do not read past this point.
+
 ## Formalisation
+
 
 ### Values
 
