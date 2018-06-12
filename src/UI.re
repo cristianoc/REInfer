@@ -131,7 +131,7 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
     let doEntry = (i, styp) =>
       <TreeView
         key=(string_of_int(i))
-        nodeLabel=(node(string_of_int(i)))
+        nodeLabel=(node("u" ++ string_of_int(i+1)))
         collapsed=false
         child=(styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
       />;

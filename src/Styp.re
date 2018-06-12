@@ -48,3 +48,9 @@ let stypIsEmpty = styp =>
   | {typ: Empty, o: NotOpt, p} when p == P.zero => true
   | _ => false
   };
+
+let stypToUnion = styp =>
+  switch (styp.typ) {
+  | Union(styps) => styps
+  | _ => [styp]
+  };

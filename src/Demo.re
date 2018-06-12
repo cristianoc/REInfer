@@ -52,7 +52,7 @@ let testSmallDiff = n => {
     ("[null,2]", "[3]"),
     ({| [{"a":3},{"b":3}] |}, {| [] |}),
     ({| [null,{"b":3}] |}, {| [] |}),
-    ({| [3, "hello", true] |}, {| [] |}),
+    ({| [3, "hello", true, 4] |}, {| [] |}),
   |];
   let styp1 = examples[n] |. fst |. Js.Json.parseExn |. fromJson;
   let styp2 = examples[n] |. snd |. Js.Json.parseExn |. fromJson;

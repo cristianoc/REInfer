@@ -32,7 +32,7 @@ and plusStyp = (styp1, styp2) => {
   let typ =
     switch (plusTyp(styp1.typ, styp2.typ)) {
     | Some(typ) => typ
-    | None => union(styp1, styp2)
+    | None => union(styp1 |. stypToUnion, styp2 |. stypToUnion)
     };
   let o = plusO(styp1.o, styp2.o);
   open! P;
@@ -80,11 +80,20 @@ and plusTyp = (typ1, typ2) : option(typ) =>
   | (Union(_), _)
   | (_, Union(_)) => None
   }
-and union = (styp1, styp2) =>
-  switch (styp1.typ, styp2.typ) {
-  | (Union(_), Union(_)) => assert(false)
-  | (Union(l1), _) => Union([styp2, ...l1])
-  | (_, Union(l2)) => Union([styp1, ...l2])
-  | _ => Union([styp1, styp2])
-  }
+and union = (styps1, styps2) => {
+  let rec combine = (ls1, ls2) =>
+    switch (ls1, ls2) {
+    | ([t1, ...ts1], [t2, ...ts2]) =>
+      if (plusTyp(t1.typ, t2.typ) != None) {
+        [t1 ++ t2, ...combine(ts1, ts2)];
+      } else if (ts2 == []) {
+        [t1, ...combine(ts1, ls2)];
+      } else {
+        combine(ls1, ts2) |. combine([t2]);
+      }
+    | ([], ts)
+    | (ts, []) => ts
+    };
+  combine(styps1, styps2) |. Union;
+}
 and (++) = (styp1, styp2) => plusStyp(styp1, styp2);
