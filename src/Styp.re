@@ -1,3 +1,5 @@
+open Belt;
+
 module P: {
   type t;
   let zero: t;
@@ -26,9 +28,9 @@ type o =
 
 type typ =
   | Empty
-  | Number
-  | String
-  | Boolean
+  | Number(option(float))
+  | String(option(string))
+  | Boolean(option(bool))
   | Object(Js.Dict.t(styp))
   | Array(styp)
   | Union(list(styp))
@@ -38,6 +40,20 @@ and styp = {
   o,
   p,
 };
+
+let compareStyp = (x: styp, y: styp) : int => compare(x, y);
+
+let constToString = typ =>
+  switch (typ) {
+  | Number(x) =>
+    "number"
+    ++ (x |. Option.mapWithDefault("", f => ":" ++ string_of_float(f)))
+  | String(x) => "string" ++ (x |. Option.mapWithDefault("", s => ":" ++ s))
+  | Boolean(x) =>
+    "boolean"
+    ++ (x |. Option.mapWithDefault("", b => ":" ++ string_of_bool(b)))
+  | _ => assert(false)
+  };
 
 let stypIsNull = (styp: styp) =>
   styp.typ == Empty && styp.o == Opt(P.one) && styp.p == P.zero;
@@ -54,3 +70,5 @@ let stypToUnion = styp =>
   | Union(styps) => styps
   | _ => [styp]
   };
+
+let makeUnion = styps => styps |. List.sort(compareStyp) |. Union;

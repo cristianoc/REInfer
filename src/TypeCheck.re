@@ -1,13 +1,31 @@
 open Belt;
 open Styp;
 
+let singletonTypes = false;
+
 let rec fromJson = (json: Js.Json.t) : styp =>
   switch (Js.Json.classify(json)) {
-  | JSONFalse
-  | JSONTrue => {typ: Boolean, o: NotOpt, p: P.one}
+  | JSONFalse => {
+      typ: Boolean(singletonTypes ? Some(false) : None),
+      o: NotOpt,
+      p: P.one,
+    }
+  | JSONTrue => {
+      typ: Boolean(singletonTypes ? Some(true) : None),
+      o: NotOpt,
+      p: P.one,
+    }
   | JSONNull => {typ: Empty, o: Opt(P.one), p: P.one}
-  | JSONString(_) => {typ: String, o: NotOpt, p: P.one}
-  | JSONNumber(_) => {typ: Number, o: NotOpt, p: P.one}
+  | JSONString(x) => {
+      typ: String(singletonTypes ? Some(x) : None),
+      o: NotOpt,
+      p: P.one,
+    }
+  | JSONNumber(x) => {
+      typ: Number(singletonTypes ? Some(x) : None),
+      o: NotOpt,
+      p: P.one,
+    }
   | JSONObject(dict) =>
     let do_entry = ((lbl, v)) => {
       let styp = fromJson(v);
@@ -53,9 +71,9 @@ and plusTyp = (typ1, typ2) : option(typ) =>
   | (_, Diff(typ, _, _)) => plusTyp(typ1, typ)
   | (Empty, t)
   | (t, Empty) => t |. Some
-  | (Number, Number) => Number |. Some
-  | (String, String) => String |. Some
-  | (Boolean, Boolean) => Boolean |. Some
+  | (Number(x), Number(y)) => x == y ? Number(x) |. Some : None
+  | (String(x), String(y)) => x == y ? String(x) |. Some : None
+  | (Boolean(x), Boolean(y)) => x == y ? Boolean(x) |. Some : None
   | (Object(d1), Object(d2)) =>
     let d = Js.Dict.empty();
     let doItem = ((lbl, styp)) =>
@@ -69,12 +87,12 @@ and plusTyp = (typ1, typ2) : option(typ) =>
   | (Array(styp1), Array(styp2)) =>
     let styp = styp1 ++ styp2;
     styp |. Array |. Some;
-  | (Number, _)
-  | (_, Number)
-  | (String, _)
-  | (_, String)
-  | (Boolean, _)
-  | (_, Boolean)
+  | (Number(_), _)
+  | (_, Number(_))
+  | (String(_), _)
+  | (_, String(_))
+  | (Boolean(_), _)
+  | (_, Boolean(_))
   | (Object(_), _)
   | (_, Object(_))
   | (Union(_), _)
@@ -100,6 +118,6 @@ and plusUnion = (styps1, styps2) => {
       }
     | ([], ts) => ts
     };
-  plus(styps1, styps2) |. Union;
+  plus(styps1, styps2) |. makeUnion;
 }
 and (++) = (styp1, styp2) => plusStyp(styp1, styp2);

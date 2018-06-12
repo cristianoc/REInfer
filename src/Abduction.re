@@ -11,9 +11,9 @@ let rec abduceStyp = (styp1: styp, styp2: styp) : styp =>
 and abduceTyp = (typ1: typ, typ2: typ) : typ =>
   switch (typ1, typ2) {
   | (Empty, _) => typ2
-  | (Number, Number) => Empty
-  | (String, String) => Empty
-  | (Boolean, Boolean) => Empty
+  | (Number(x), Number(y)) =>  x == y ? Empty : assert false
+  | (String(x), String(y)) => x == y ? Empty : assert false
+  | (Boolean(x), Boolean(y)) => x == y ? Empty : assert false
   | (Object(d1), Object(d2)) =>
     let d = Js.Dict.empty();
     let doItem2 = ((lbl, styp2)) =>

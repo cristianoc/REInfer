@@ -58,9 +58,21 @@ and diffTyp = (typ1: typ, typ2: typ) : diffTyp =>
   | (Empty | Diff(_), _) => {typA1: Empty, typA2: typ2, typB: Empty}
   | (_, Empty | Diff(_)) => {typA1: typ1, typA2: Empty, typB: Empty}
 
-  | (Number, Number) => {typA1: Empty, typA2: Empty, typB: Number}
-  | (String, String) => {typA1: Empty, typA2: Empty, typB: String}
-  | (Boolean, Boolean) => {typA1: Empty, typA2: Empty, typB: Boolean}
+  | (Number(x), Number(y)) when x == y => {
+      typA1: Empty,
+      typA2: Empty,
+      typB: Number(x),
+    }
+  | (String(x), String(y)) when x == y => {
+      typA1: Empty,
+      typA2: Empty,
+      typB: String(x),
+    }
+  | (Boolean(x), Boolean(y)) when x == y => {
+      typA1: Empty,
+      typA2: Empty,
+      typB: Boolean(x),
+    }
 
   | (Object(d1), Object(d2)) =>
     let dA1 = Js.Dict.empty();
@@ -105,12 +117,12 @@ and diffTyp = (typ1: typ, typ2: typ) : diffTyp =>
     let typA2 = stypIsEmpty(stypA2) ? Empty : Array(stypA2);
     let typB = Array(stypB);
     {typA1, typA2, typB};
-  | (Number, _)
-  | (_, Number)
-  | (String, _)
-  | (_, String)
-  | (Boolean, _)
-  | (_, Boolean)
+  | (Number(_), _)
+  | (_, Number(_))
+  | (String(_), _)
+  | (_, String(_))
+  | (Boolean(_), _)
+  | (_, Boolean(_))
   | (Object(_), _)
   | (_, Object(_))
   | (Union(_), _)
@@ -150,7 +162,7 @@ and diffUnion = (styp1, styp2, styps1: list(styp), styps2: list(styp)) : t => {
     switch (styps |. List.keep(styp => ! stypIsEmpty(styp))) {
     | [] => Empty
     | [styp] => styp.typ
-    | styps1 => styps1 |. Union
+    | styps1 => styps1 |. makeUnion
     };
   let toStyp = stypU => {
     let typ = stypU |. toUnion;

@@ -102,9 +102,9 @@ let rec toComponentStyp =
 and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   switch (typ) {
   | Empty => baseType(fmt.same ? "same" : "empty")
-  | Number => baseType("number")
-  | String => baseType("string")
-  | Boolean => baseType("boolean")
+  | Number(_)
+  | String(_)
+  | Boolean(_) => typ |. constToString |. baseType
   | Object(d) =>
     let doEntry = (i, (lbl, styp)) =>
       <TreeView
@@ -131,7 +131,7 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
     let doEntry = (i, styp) =>
       <TreeView
         key=(string_of_int(i))
-        nodeLabel=(node("u" ++ string_of_int(i+1)))
+        nodeLabel=(node("u" ++ string_of_int(i + 1)))
         collapsed=false
         child=(styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
       />;

@@ -64,9 +64,9 @@ let rec toJsonStyp = (styp: styp, ~ctx: p) : Js.Json.t =>
 and toJsonTyp = (typ: typ, ~ctx: p) : Js.Json.t =>
   switch (typ) {
   | Empty => Js.Json.string("empty")
-  | Number => Js.Json.string("number")
-  | String => Js.Json.string("string")
-  | Boolean => Js.Json.string("boolean")
+  | Number(_)
+  | String(_)
+  | Boolean(_) => typ |. constToString |. Js.Json.string
   | Object(d) =>
     let doEntry = ((lbl, styp)) => (lbl, styp |. toJsonStyp(~ctx));
     Js.Dict.entries(d)
