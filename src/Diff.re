@@ -32,6 +32,8 @@ let rec diffStyp = (styp1: styp, styp2: styp) : t =>
     diffUnion(styp1, styp2, styps1, styps2)
   | (Union(styps1), _) => diffUnion(styp1, styp2, styps1, [styp2])
   | (_, Union(styps2)) => diffUnion(styp1, styp2, [styp1], styps2)
+  | (typ1, typ2) when TypeCheck.plusTyp(typ1, typ2) == None =>
+    diffUnion(styp1, styp2, [styp1], [styp2])
   | (typ1, typ2) =>
     let {typA1, typA2, typB} = diffTyp(typ1, typ2);
     let (oA1, oA2, oB) = diffO(styp1.o, styp2.o);
