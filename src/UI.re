@@ -120,7 +120,7 @@ and addDecorator =
     | NotOpt => ReasonReact.null
     | Opt(p1) => questionMark(p1)
     };
-  right ? <span> p o x </span> : <span> x p o </span>;
+  right ? <span> x p o </span> : <span> p o x </span>;
 }
 and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   switch (typ) {
