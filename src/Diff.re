@@ -56,16 +56,12 @@ and diffO = (o1: o, o2: o) : (o, o, o) =>
     )
   }
 and diffTyp = (typ1: typ, typ2: typ) : diffTyp => {
-  let same = typ => {
-    typA1: Empty(Some(typ)),
-    typA2: Empty(Some(typ)),
-    typB: typ,
-  };
+  let same = typ => {typA1: Same(typ), typA2: Same(typ), typB: typ};
   switch (typ1, typ2) {
-  | (Empty(x), _) => {typA1: Empty(x), typA2: typ2, typB: Empty(None)}
-  | (Diff(_), _) => {typA1: Empty(None), typA2: typ2, typB: Empty(None)}
-  | (_, Empty(x)) => {typA1: typ1, typA2: Empty(x), typB: Empty(None)}
-  | (_, Diff(_)) => {typA1: typ1, typA2: Empty(None), typB: Empty(None)}
+  | (Empty | Same(_), _)
+  | (_, Empty | Same(_)) => {typA1: typ1, typA2: typ2, typB: Empty}
+  | (Diff(_), _) => {typA1: Empty, typA2: typ2, typB: Empty}
+  | (_, Diff(_)) => {typA1: typ1, typA2: Empty, typB: Empty}
 
   | (Number(x), Number(y)) when x == y => same(typ1)
   | (String(x), String(y)) when x == y => same(typ1)
@@ -105,21 +101,19 @@ and diffTyp = (typ1: typ, typ2: typ) : diffTyp => {
     let entries2 = dA2 |. Js.Dict.entries;
     let typA1 = {
       let t = entries1 |. makeObject;
-      Array.length(entries1) == 0 ? t |. Some |. Empty : t;
+      Array.length(entries1) == 0 ? t |. Same : t;
     };
     let typA2 = {
       let t = entries2 |. makeObject;
-      Array.length(entries2) == 0 ? t |. Some |. Empty : t;
+      Array.length(entries2) == 0 ? t |. Same : t;
     };
     let typB = dB |. Js.Dict.entries |. makeObject;
     {typA1, typA2, typB};
 
   | (Array(styp1), Array(styp2)) =>
     let {stypA1, stypA2, stypB} = diffStyp(styp1, styp2);
-    let typA1 =
-      stypIsEmpty(stypA1) ? Empty(Some(Array(stypA1))) : Array(stypA1);
-    let typA2 =
-      stypIsEmpty(stypA2) ? Empty(Some(Array(stypA2))) : Array(stypA2);
+    let typA1 = stypIsEmpty(stypA1) ? Same(Array(stypA1)) : Array(stypA1);
+    let typA2 = stypIsEmpty(stypA2) ? Same(Array(stypA2)) : Array(stypA2);
     let typB = Array(stypB);
     {typA1, typA2, typB};
   | (Number(_), _)
@@ -166,7 +160,7 @@ and diffUnion = (styp1, styp2, styps1: list(styp), styps2: list(styp)) : t => {
   let {stypUA1, stypUA2, stypUB} = plus(styps1, styps2);
   let toUnion = styps =>
     switch (styps |. List.keep(styp => ! stypIsEmpty(styp))) {
-    | [] => Empty(None)
+    | [] => Empty
     | [styp] => styp.typ
     | styps1 => styps1 |. makeUnion
     };
@@ -197,7 +191,7 @@ let rec combineStyp = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
   }
 and combineTyp = (typA1: typ, typA2: typ, typB: typ) : typ =>
   switch (typA1, typA2, typB) {
-  | (Array(_) | Empty(_), Array(_) | Empty(_), Array(stypB)) =>
+  | (Array(_) | Empty | Same(_), Array(_) | Empty | Same(_), Array(stypB)) =>
     let getStyp = typ =>
       switch (typ) {
       | Array(styp) => styp
@@ -206,7 +200,7 @@ and combineTyp = (typA1: typ, typA2: typ, typB: typ) : typ =>
     let stypA1 = typA1 |. getStyp;
     let stypA2 = typA2 |. getStyp;
     combineStyp(stypA1, stypA2, stypB) |. Array;
-  | (Object(_) | Empty(_), Object(_) | Empty(_), Object(dictB)) =>
+  | (Object(_) | Empty | Same(_), Object(_) | Empty | Same(_), Object(dictB)) =>
     let d = Js.Dict.empty();
     let getDict = typ =>
       switch (typ) {

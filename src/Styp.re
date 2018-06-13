@@ -27,7 +27,8 @@ type o =
   | Opt(p);
 
 type typ =
-  | Empty(option(typ)) /* Represent "same" for diff if not None */
+  | Empty
+  | Same(typ)
   | Number(option(float))
   | String(option(string))
   | Boolean(option(bool))
@@ -55,16 +56,18 @@ let constToString = typ =>
 
 let typIsEmpty = typ =>
   switch (typ) {
-  | Empty(_) => true
+  | Empty => true
   | _ => false
   };
+
 let stypIsNull = (styp: styp) =>
   styp.typ |. typIsEmpty && styp.o == Opt(P.one) && styp.p == P.zero;
 
-let stypEmpty = {typ: Empty(None), o: NotOpt, p: P.zero};
+let stypEmpty = {typ: Empty, o: NotOpt, p: P.zero};
+
 let stypIsEmpty = styp =>
   switch (styp) {
-  | {typ: Empty(_), o: NotOpt, p} when p == P.zero => true
+  | {typ: Empty, o: NotOpt, p} when  p == P.zero => true
   | _ => false
   };
 
@@ -77,7 +80,11 @@ let stypToUnion = styp =>
 let compareEntries = ((lbl1, _), (lbl2, _)) => compare(lbl1, lbl2);
 
 let makeObject = arr =>
-  arr |. List.fromArray |. List.sort(compareEntries) |. Js.Dict.fromList |. Object;
+  arr
+  |. List.fromArray
+  |. List.sort(compareEntries)
+  |. Js.Dict.fromList
+  |. Object;
 
 let compareStyp = (x: styp, y: styp) : int => compare(x, y);
 let makeUnion = styps => styps |. List.sort(compareStyp) |. Union;

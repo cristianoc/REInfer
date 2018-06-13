@@ -63,7 +63,8 @@ let rec toJsonStyp = (styp: styp, ~ctx: p) : Js.Json.t =>
   }
 and toJsonTyp = (typ: typ, ~ctx: p) : Js.Json.t =>
   switch (typ) {
-  | Empty(_) => Js.Json.string("empty")
+  | Empty => Js.Json.string("empty")
+  | Same(_) => Js.Json.string("same")
   | Number(_)
   | String(_)
   | Boolean(_) => typ |. constToString |. Js.Json.string
