@@ -54,10 +54,9 @@ module TreeView = {
 let node = (~style=?, x) =>
   <span className="node" ?style> (ReasonReact.string(x)) </span>;
 
-let baseType = x =>
-  <span className="node" style=Color.(style(green))>
-    (ReasonReact.string(x))
-  </span>;
+let nodeGreen = x => x |. node(~style=Color.(style(green)));
+
+let nodeBrown = x => x |. node(~style=Color.(style(brown)));
 
 let questionMark = p =>
   <span style=Color.(style(red))>
@@ -84,6 +83,21 @@ let rec toComponentStyp =
         : ReasonReact.reactElement => {
   let pUnchanged = ctx == P.zero && styp.p == P.zero;
   let color = Color.(stypIsNull(styp) ? red : pUnchanged ? grey : black);
+  let typ = styp.typ |. toComponentT(~ctx=styp.p, ~fmt);
+  let style = Color.style(color);
+  let decorator =
+    switch (styp.typ) {
+    | Number(_)
+    | String(_)
+    | Boolean(_) => styp |. stypToDecorator(~ctx, ~fmt)
+    | _ => ReasonReact.null
+    };
+  stypIsNull(styp) ?
+    <div style className="node"> (ReasonReact.string("null")) </div> :
+    <div style> typ decorator </div>;
+}
+and stypToDecorator = (styp: styp, ~ctx: p, ~fmt: fmt) => {
+  let pUnchanged = ctx == P.zero && styp.p == P.zero;
   let pString =
     if (fmt.percent && ctx != P.zero) {
       P.toFloat(styp.p) /. P.toFloat(ctx) |. string_of_float;
@@ -99,42 +113,48 @@ let rec toComponentStyp =
     | NotOpt => ReasonReact.null
     | Opt(p1) => questionMark(p1)
     };
-  let typ = styp.typ |. toComponentT(~ctx=styp.p, ~fmt);
-  let style = Color.style(color);
-  stypIsNull(styp) ?
-    <div style className="node"> (ReasonReact.string("null")) </div> :
-    <div style> p o typ </div>;
+  <span> p o </span>;
 }
 and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   switch (typ) {
-  | Empty => baseType("empty")
+  | Empty => nodeBrown("empty")
   | Same(typ) =>
     <TreeView
       key="same"
-      nodeLabel=(baseType("same"))
+      nodeLabel=(nodeBrown("same"))
       collapsed=true
       child=(typ |. toComponentT(~ctx, ~fmt))
     />
   | Number(_)
   | String(_)
-  | Boolean(_) => typ |. constToString |. baseType
+  | Boolean(_) => typ |. constToString |. nodeGreen
   | Object(d) =>
     let doEntry = (i, (lbl, styp)) =>
       <TreeView
         key=(string_of_int(i))
-        nodeLabel=(node(lbl))
+        nodeLabel={
+          <span>
+            (node(lbl))
+            (styp |. stypToDecorator(~ctx, ~fmt))
+          </span>
+        }
         collapsed=false
         child=(styp |. toComponentStyp(~ctx, ~fmt))
       />;
 
-    <div>
-      (ReasonReact.array(Js.Dict.entries(d) |. Array.mapWithIndex(doEntry)))
-    </div>;
-  | Array(styp) when stypIsEmpty(styp) => node("[]")
+    ReasonReact.array(Js.Dict.entries(d) |. Array.mapWithIndex(doEntry));
+  | Array(styp) when stypIsEmpty(styp) =>
+    <span>
+      (styp |. stypToDecorator(~ctx, ~fmt))
+      (node("["))
+      (node("]"))
+    </span>
   | Array(styp) =>
     <span>
       <TreeView
-        nodeLabel=(node("["))
+        nodeLabel={
+          <span> (styp |. stypToDecorator(~ctx, ~fmt)) (node("[")) </span>
+        }
         collapsed=false
         child=(styp |. toComponentStyp(~ctx, ~fmt))
       />
@@ -144,13 +164,18 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
     let doEntry = (i, styp) =>
       <TreeView
         key=(string_of_int(i))
-        nodeLabel=(node("u" ++ string_of_int(i + 1)))
+        nodeLabel={
+          <span>
+            (node("u" ++ string_of_int(i + 1)))
+            (styp |. stypToDecorator(~ctx, ~fmt))
+          </span>
+        }
         collapsed=false
         child=(styp |. toComponentStyp(~ctx, ~fmt))
       />;
 
     <div>
-      (node(~style=Color.(style(brown)), "union"))
+      ("union" |. nodeBrown)
       (
         styps
         |. List.mapWithIndex(doEntry)
@@ -167,14 +192,14 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
         ReasonReact.null :
         <TreeView
           key=lbl
-          nodeLabel=(node(lbl))
+          nodeLabel=(lbl |. nodeBrown)
           collapsed=true
           child=(styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
         />;
     };
     <div>
       <TreeView
-        nodeLabel=(node(~style=Color.(style(brown)), "common"))
+        nodeLabel=("common" |. nodeBrown)
         collapsed=true
         child=(t |. toComponentT(~ctx, ~fmt))
       />

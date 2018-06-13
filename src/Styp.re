@@ -56,18 +56,22 @@ let constToString = typ =>
 
 let typIsEmpty = typ =>
   switch (typ) {
-  | Empty => true
+  | Empty
+  | Same(_) => true
   | _ => false
   };
 
 let stypIsNull = (styp: styp) =>
-  styp.typ |. typIsEmpty && styp.o == Opt(P.one) && styp.p == P.zero;
+  switch (styp.o) {
+  | NotOpt => false
+  | Opt(p) => styp.typ |. typIsEmpty && styp.p == p
+  };
 
 let stypEmpty = {typ: Empty, o: NotOpt, p: P.zero};
 
 let stypIsEmpty = styp =>
   switch (styp) {
-  | {typ: Empty, o: NotOpt, p} when p == P.zero => true
+  | {typ, o: NotOpt, p} when typ |. typIsEmpty && p == P.zero => true
   | _ => false
   };
 
