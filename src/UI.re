@@ -107,7 +107,7 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
       key="same"
       nodeLabel=(baseType("same"))
       collapsed=true
-      child=(typ |. toComponentT(~ctx, ~fmt=fmtDelta))
+      child=(typ |. toComponentT(~ctx, ~fmt))
     />
   | Number(_)
   | String(_)
@@ -140,7 +140,7 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
         key=(string_of_int(i))
         nodeLabel=(node("u" ++ string_of_int(i + 1)))
         collapsed=false
-        child=(styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
+        child=(styp |. toComponentStyp(~ctx, ~fmt))
       />;
 
     <div>
