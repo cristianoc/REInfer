@@ -135,7 +135,9 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   | Boolean(_) => typ |. constToString |. nodeGreen
   | Object(d) =>
     let doEntry = (i, (lbl, styp)) =>
-      <span style=Color.(style(styp.p == P.zero ? grey : black))>
+      <span
+        key=(string_of_int(i))
+        style=Color.(style(styp.p == P.zero ? grey : black))>
         <TreeView
           key=(string_of_int(i))
           nodeLabel=(
