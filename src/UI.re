@@ -70,7 +70,7 @@ type fmt = {
   explicitP: bool /* never hide the value of p */,
 };
 
-let fmtDefault = {plus: false, percent: true, explicitP: true};
+let fmtDefault = {plus: false, percent: false, explicitP: true};
 let fmtDelta = {plus: true, percent: false, explicitP: true};
 
 let rec toComponentStyp =
