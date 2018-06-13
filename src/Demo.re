@@ -1,14 +1,6 @@
 open! TypeCheck;
 
 let testSmall = () => {
-  /* let small = Js.Json.parseExn({| [{"x": "hello"}, {"x":null, "y":0}] |}); */
-  /* let small = Js.Json.parseExn({| [1,2,3] |}); */
-  /* let small = Js.Json.parseExn({| {"numbers":[1,2,3]} |}); */
-  /* let small = Js.Json.parseExn({| [{"numbers":[1,2,3]},{"numbers":[4,5]} ] |}); */
-  /* let small =
-     Js.Json.parseExn(
-       {| [ {"target": {"x": "abc" }}, {"target": {"x": "abc" }}, {"target":null} ] |},
-     ); */
   let small = Js.Json.parseExn({| [{"name":null} ] |});
 
   let styp = fromJson(small);
@@ -35,7 +27,7 @@ let logDiff = ({styp1, styp2, stypA1, stypA2, stypB}) => {
 
 let testSmallDiff = n => {
   let examples = [|
-    ({| {"x": "hello", "y":"world"} |}, {| {"x": null} |}),
+    ({| {"x": "hello"} |}, {| {"x": null, "y":0} |}),
     ({| [{"x": {"y" : "hello"}}] |}, {| [{"x": {"z" : "hello"}}] |}),
     ("null", "3"),
     ("[null,2]", "[3]"),
@@ -83,7 +75,7 @@ let testDynamicallyTypedJson = () => {
   };
 };
 
-let res = testSmallDiff(8);
+let res = testSmallDiff(0);
 /* let res = testBigDiff(); */
 let test = () => res;
 

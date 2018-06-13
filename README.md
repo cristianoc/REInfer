@@ -1,6 +1,6 @@
-## ReInfer: Runtime Extended Inference
+## REInfer: Runtime Extended Inference
 
-REInfer performs runtime extended type inference on json data. Compared to traditional types, the extended types incorporate some numerical information, such as the number of times a field appears in the data, or the number of times it is null.
+REInfer performs **R**untime **E**xtended type **Infer**ence on json data. Compared to traditional types, the extended types incorporate some numerical information, such as the number of times a field appears in the data, or the number of times it is null.
 
 A facility is provided to compare inferred types. This follows the idea of a diff algorithm which takes two values and returns the difference. The difference consists of a common part plus two deltas. Deltas are applied using a sum operation for extended types. The diff algorithm borrows and extends ideas from abduction for shape analysis, applied to type theory instead of program logic.
 
@@ -16,11 +16,9 @@ npm install
 npm start
 # in another tab
 npm run serve
-# in another tab
-code .
 ```
 
-Then open the served page in the browser (use latest version).
+Then open the served page in the browser and edit `Demo.re`.
 
 
 ### Example

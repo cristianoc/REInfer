@@ -67,7 +67,7 @@ let stypEmpty = {typ: Empty, o: NotOpt, p: P.zero};
 
 let stypIsEmpty = styp =>
   switch (styp) {
-  | {typ: Empty, o: NotOpt, p} when  p == P.zero => true
+  | {typ: Empty, o: NotOpt, p} when p == P.zero => true
   | _ => false
   };
 
@@ -77,7 +77,8 @@ let stypToUnion = styp =>
   | _ => [styp]
   };
 
-let compareEntries = ((lbl1, _), (lbl2, _)) => compare(lbl1, lbl2);
+let compareEntries = ((lbl1: string, _), (lbl2: string, _)) =>
+  compare(lbl1, lbl2);
 
 let makeObject = arr =>
   arr

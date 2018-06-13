@@ -1,7 +1,7 @@
 open Belt;
 open Styp;
 
-let singletonTypes = true;
+let singletonTypes = false;
 
 let rec fromJson = (json: Js.Json.t) : styp =>
   switch (Js.Json.classify(json)) {
