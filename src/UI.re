@@ -85,18 +85,25 @@ let rec toComponentStyp =
   let color = Color.(stypIsNull(styp) ? red : pUnchanged ? grey : black);
   let typ = styp.typ |. toComponentT(~ctx=styp.p, ~fmt);
   let style = Color.style(color);
-  let decorator =
+  let shouldAddDecorator =
     switch (styp.typ) {
     | Number(_)
     | String(_)
-    | Boolean(_) => styp |. stypToDecorator(~ctx, ~fmt)
-    | _ => ReasonReact.null
+    | Boolean(_) => true
+    | _ => false
     };
   stypIsNull(styp) ?
     <div style className="node"> (ReasonReact.string("null")) </div> :
-    <div style> typ decorator </div>;
+    <div style>
+      (
+        shouldAddDecorator ?
+          typ |. addDecorator(~styp, ~right=true, ~ctx, ~fmt) : typ
+      )
+    </div>;
 }
-and stypToDecorator = (styp: styp, ~ctx: p, ~fmt: fmt) => {
+and addDecorator =
+    (x: ReasonReact.reactElement, ~styp: styp, ~right, ~ctx: p, ~fmt: fmt)
+    : ReasonReact.reactElement => {
   let pUnchanged = ctx == P.zero && styp.p == P.zero;
   let pString =
     if (fmt.percent && ctx != P.zero) {
@@ -113,7 +120,7 @@ and stypToDecorator = (styp: styp, ~ctx: p, ~fmt: fmt) => {
     | NotOpt => ReasonReact.null
     | Opt(p1) => questionMark(p1)
     };
-  <span> p o </span>;
+  right ? <span> p o x </span> : <span> x p o </span>;
 }
 and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   switch (typ) {
@@ -132,12 +139,7 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
     let doEntry = (i, (lbl, styp)) =>
       <TreeView
         key=(string_of_int(i))
-        nodeLabel={
-          <span>
-            (node(lbl))
-            (styp |. stypToDecorator(~ctx, ~fmt))
-          </span>
-        }
+        nodeLabel=(node(lbl) |. addDecorator(~styp, ~right=true, ~ctx, ~fmt))
         collapsed=false
         child=(styp |. toComponentStyp(~ctx, ~fmt))
       />;
@@ -145,16 +147,15 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
     ReasonReact.array(Js.Dict.entries(d) |. Array.mapWithIndex(doEntry));
   | Array(styp) when stypIsEmpty(styp) =>
     <span>
-      (styp |. stypToDecorator(~ctx, ~fmt))
-      (node("["))
+      (node("[") |. addDecorator(~styp, ~right=false, ~ctx, ~fmt))
       (node("]"))
     </span>
   | Array(styp) =>
     <span>
       <TreeView
-        nodeLabel={
-          <span> (styp |. stypToDecorator(~ctx, ~fmt)) (node("[")) </span>
-        }
+        nodeLabel=(
+          node("[") |. addDecorator(~styp, ~right=false, ~ctx, ~fmt)
+        )
         collapsed=false
         child=(styp |. toComponentStyp(~ctx, ~fmt))
       />
@@ -164,12 +165,10 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
     let doEntry = (i, styp) =>
       <TreeView
         key=(string_of_int(i))
-        nodeLabel={
-          <span>
-            (node("u" ++ string_of_int(i + 1)))
-            (styp |. stypToDecorator(~ctx, ~fmt))
-          </span>
-        }
+        nodeLabel=(
+          node("u" ++ string_of_int(i + 1))
+          |. addDecorator(~styp, ~right=true, ~ctx, ~fmt)
+        )
         collapsed=false
         child=(styp |. toComponentStyp(~ctx, ~fmt))
       />;
