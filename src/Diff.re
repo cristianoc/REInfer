@@ -56,16 +56,16 @@ and diffO = (o1: o, o2: o) : (o, o, o) =>
     )
   }
 and diffTyp = (typ1: typ, typ2: typ) : diffTyp => {
-  let same = typ => {typA1: Same(typ), typA2: Same(typ), typB: typ};
+  let makeSame = typ => {typA1: Same(typ), typA2: Same(typ), typB: typ};
   switch (typ1, typ2) {
   | (Empty | Same(_), _)
   | (_, Empty | Same(_)) => {typA1: typ1, typA2: typ2, typB: Empty}
   | (Diff(_), _) => {typA1: Empty, typA2: typ2, typB: Empty}
   | (_, Diff(_)) => {typA1: typ1, typA2: Empty, typB: Empty}
 
-  | (Number(x), Number(y)) when x == y => same(typ1)
-  | (String(x), String(y)) when x == y => same(typ1)
-  | (Boolean(x), Boolean(y)) when x == y => same(typ1)
+  | (Number(x), Number(y)) when x == y => makeSame(typ1)
+  | (String(x), String(y)) when x == y => makeSame(typ1)
+  | (Boolean(x), Boolean(y)) when x == y => makeSame(typ1)
 
   | (Object(d1), Object(d2)) =>
     let dA1 = Js.Dict.empty();
