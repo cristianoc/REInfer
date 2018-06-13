@@ -23,17 +23,6 @@ let bronze = lazy (Query.reasonBronzeThread |. Js.Json.parseExn |. fromJson);
 let testBronze = () => Js.log(Lazy.force(bronze) |. PrettyPrint.styp);
 let testPlatinum = () => Js.log(Lazy.force(platinum) |. PrettyPrint.styp);
 
-let testSmallAbduce = () => {
-  /* let styp1 = {| [{"x": "hello"}] |} |. Js.Json.parseExn |. Styp.fromJson;
-     let styp2 = {| [{"y": "hello"}] |} |. Js.Json.parseExn |. Styp.fromJson; */
-  let styp1 = {| {"x": "hello"} |} |. Js.Json.parseExn |. fromJson;
-  let styp2 = {| {"x": null} |} |. Js.Json.parseExn |. fromJson;
-  let styp = Abduction.(styp2 -- styp1);
-  Js.log(styp1 |. PrettyPrint.styp);
-  Js.log(styp2 |. PrettyPrint.styp);
-  Js.log(styp |. PrettyPrint.styp);
-};
-
 open Diff;
 
 let logDiff = ({styp1, styp2, stypA1, stypA2, stypB}) => {
