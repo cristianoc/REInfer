@@ -18,7 +18,8 @@ let rec toJsonStyp = (styp: styp) : Js.Json.t => {
 and toJsonTyp = (typ: typ) : Js.Json.t =>
   switch (typ) {
   | Empty => Js.Json.string("empty")
-  | Same(_) => Js.Json.string("same")
+  | Same(typ) =>
+    [|("same", typ |. toJsonTyp)|] |. Js.Dict.fromArray |. Js.Json.object_
   | Number(_)
   | String(_)
   | Boolean(_) => typ |. constToString |. Js.Json.string
@@ -30,7 +31,12 @@ and toJsonTyp = (typ: typ) : Js.Json.t =>
     |. Js.Json.object_;
   | Array(styp) => [|styp |. toJsonStyp|] |. Js.Json.array
   | Union(styps) =>
-    styps |. List.map(toJsonStyp) |. List.toArray |. Js.Json.array
+    styps
+    |. List.mapWithIndex((i, styp) =>
+         ("u" ++ string_of_int(i), styp |. toJsonStyp)
+       )
+    |. Js.Dict.fromList
+    |. Js.Json.object_
   | Diff(typ, _, _) => typ |. toJsonTyp
   };
 let styp = styp => styp |. toJsonStyp |. Js.Json.stringify;
