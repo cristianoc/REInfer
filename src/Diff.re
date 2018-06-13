@@ -55,26 +55,15 @@ and diffO = (o1: o, o2: o) : (o, o, o) =>
       Opt(min(p1, p2)),
     )
   }
-and diffTyp = (typ1: typ, typ2: typ) : diffTyp =>
+and diffTyp = (typ1: typ, typ2: typ) : diffTyp => {
+  let same = () => {typA1: Empty, typA2: Empty, typB: typ1};
   switch (typ1, typ2) {
   | (Empty | Diff(_), _) => {typA1: Empty, typA2: typ2, typB: Empty}
   | (_, Empty | Diff(_)) => {typA1: typ1, typA2: Empty, typB: Empty}
 
-  | (Number(x), Number(y)) when x == y => {
-      typA1: Empty,
-      typA2: Empty,
-      typB: Number(x),
-    }
-  | (String(x), String(y)) when x == y => {
-      typA1: Empty,
-      typA2: Empty,
-      typB: String(x),
-    }
-  | (Boolean(x), Boolean(y)) when x == y => {
-      typA1: Empty,
-      typA2: Empty,
-      typB: Boolean(x),
-    }
+  | (Number(x), Number(y)) when x == y => same()
+  | (String(x), String(y)) when x == y => same()
+  | (Boolean(x), Boolean(y)) when x == y => same()
 
   | (Object(d1), Object(d2)) =>
     let dA1 = Js.Dict.empty();
@@ -129,7 +118,8 @@ and diffTyp = (typ1: typ, typ2: typ) : diffTyp =>
   | (_, Object(_))
   | (Union(_), _)
   | (_, Union(_)) => assert(false)
-  }
+  };
+}
 and diffUnion = (styp1, styp2, styps1: list(styp), styps2: list(styp)) : t => {
   let rec findMatch = (t, ts, acc) =>
     switch (ts) {
