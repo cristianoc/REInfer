@@ -38,8 +38,8 @@ module TreeView = {
         "tree-view_children"
         ++ (collapsed ? " tree-view_children-collapsed" : "");
 
-      <div className="tree-view ">
-        <div className="tree-view_item  " onClick=(_ => send(Click))>
+      <div className="tree-view">
+        <div className="tree-view_item" onClick=(_ => send(Click))>
           <div className=arrowClassName />
           <span> nodeLabel </span>
         </div>
@@ -81,10 +81,8 @@ let fmtDelta = {plus: true, percent: false, hideZeroOne: false, hideP: false};
 let rec toComponentStyp =
         (styp: styp, ~ctx: p, ~fmt: fmt)
         : ReasonReact.reactElement => {
-  let pUnchanged = ctx == P.zero && styp.p == P.zero;
-  let color = Color.(stypIsNull(styp) ? red : pUnchanged ? grey : black);
   let typ = styp.typ |. toComponentT(~ctx=styp.p, ~fmt);
-  let style = Color.style(color);
+  let style = Color.(style(stypIsNull(styp) ? red : black));
   let shouldAddDecorator =
     switch (styp.typ) {
     | Number(_)
@@ -137,12 +135,16 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   | Boolean(_) => typ |. constToString |. nodeGreen
   | Object(d) =>
     let doEntry = (i, (lbl, styp)) =>
-      <TreeView
-        key=(string_of_int(i))
-        nodeLabel=(node(lbl) |. addDecorator(~styp, ~right=true, ~ctx, ~fmt))
-        collapsed=false
-        child=(styp |. toComponentStyp(~ctx, ~fmt))
-      />;
+      <span style=Color.(style(styp.p == P.zero ? grey : black))>
+        <TreeView
+          key=(string_of_int(i))
+          nodeLabel=(
+            node(lbl) |. addDecorator(~styp, ~right=true, ~ctx, ~fmt)
+          )
+          collapsed=false
+          child=(styp |. toComponentStyp(~ctx, ~fmt))
+        />
+      </span>;
 
     ReasonReact.array(Js.Dict.entries(d) |. Array.mapWithIndex(doEntry));
   | Array(styp) when stypIsEmpty(styp) =>
@@ -151,7 +153,7 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
       (node("]"))
     </span>
   | Array(styp) =>
-    <span>
+    <span style=Color.(style(styp.p == P.zero ? grey : black))>
       <TreeView
         nodeLabel=(
           node("[") |. addDecorator(~styp, ~right=false, ~ctx, ~fmt)
