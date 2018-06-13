@@ -66,8 +66,10 @@ and plusTyp = (typ1, typ2) : option(typ) =>
   switch (typ1, typ2) {
   | (Diff(typ, _, _), _) => plusTyp(typ, typ2)
   | (_, Diff(typ, _, _)) => plusTyp(typ1, typ)
-  | (Empty(_), t)
-  | (t, Empty(_)) => t |. Some
+  | (Empty(None), t)
+  | (t, Empty(None)) => t |. Some
+  | (Empty(Some(t1)), t)
+  | (t, Empty(Some(t1))) => plusTyp(t, t1)
   | (Number(x), Number(y)) => x == y ? Number(x) |. Some : None
   | (String(x), String(y)) => x == y ? String(x) |. Some : None
   | (Boolean(x), Boolean(y)) => x == y ? Boolean(x) |. Some : None
@@ -81,9 +83,7 @@ and plusTyp = (typ1, typ2) : option(typ) =>
     d1 |. Js.Dict.entries |. Array.forEach(doItem);
     d2 |. Js.Dict.entries |. Array.forEach(doItem);
     d |. Js.Dict.entries |. makeObject |. Some;
-  | (Array(styp1), Array(styp2)) =>
-    let styp = styp1 ++ styp2;
-    styp |. Array |. Some;
+  | (Array(styp1), Array(styp2)) => styp1 ++ styp2 |. Array |. Some
   | (Number(_), _)
   | (_, Number(_))
   | (String(_), _)

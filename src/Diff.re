@@ -186,16 +186,16 @@ and diffUnion = (styp1, styp2, styps1: list(styp), styps2: list(styp)) : t => {
   };
 };
 
-let rec combine = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
+let rec combineStyp = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
   if (stypA1.p != P.zero
       || stypA1.o != NotOpt
       || stypA2.p != P.zero
       || stypA2.o != NotOpt) {
     {...stypB, typ: Diff(stypB.typ, stypA1, stypA2)};
   } else {
-    {...stypB, typ: combineT(stypA1.typ, stypA2.typ, stypB.typ)};
+    {...stypB, typ: combineTyp(stypA1.typ, stypA2.typ, stypB.typ)};
   }
-and combineT = (typA1: typ, typA2: typ, typB: typ) : typ =>
+and combineTyp = (typA1: typ, typA2: typ, typB: typ) : typ =>
   switch (typA1, typA2, typB) {
   | (Array(_) | Empty(_), Array(_) | Empty(_), Array(stypB)) =>
     let getStyp = typ =>
@@ -205,7 +205,7 @@ and combineT = (typA1: typ, typA2: typ, typB: typ) : typ =>
       };
     let stypA1 = typA1 |. getStyp;
     let stypA2 = typA2 |. getStyp;
-    combine(stypA1, stypA2, stypB) |. Array;
+    combineStyp(stypA1, stypA2, stypB) |. Array;
   | (Object(_) | Empty(_), Object(_) | Empty(_), Object(dictB)) =>
     let d = Js.Dict.empty();
     let getDict = typ =>
@@ -224,7 +224,11 @@ and combineT = (typA1: typ, typA2: typ, typB: typ) : typ =>
       d
       |. Js.Dict.set(
            lbl,
-           combine(dictA1 |. getStyp, dictA2 |. getStyp, dictB |. getStyp),
+           combineStyp(
+             dictA1 |. getStyp,
+             dictA2 |. getStyp,
+             dictB |. getStyp,
+           ),
          );
     };
     Set.String.(
@@ -242,13 +246,13 @@ and combineT = (typA1: typ, typA2: typ, typB: typ) : typ =>
 let diff = (styp1, styp2) => {
   let d = diffStyp(styp1, styp2);
   inlineDifferences ?
-    {...d, stypB: combine(d.stypA1, d.stypA2, d.stypB)} : d;
+    {...d, stypB: combineStyp(d.stypA1, d.stypA2, d.stypB)} : d;
 };
 let diffCheck = (styp1, styp2) => {
   let d = diffStyp(styp1, styp2);
   open! TypeCheck;
   assert(d.stypB ++ d.stypA1 == styp1);
-  /* assert(d.stypB ++ d.stypA2 == styp2); */
+  assert(d.stypB ++ d.stypA2 == styp2);
   inlineDifferences ?
-    {...d, stypB: combine(d.stypA1, d.stypA2, d.stypB)} : d;
+    {...d, stypB: combineStyp(d.stypA1, d.stypA2, d.stypB)} : d;
 };
