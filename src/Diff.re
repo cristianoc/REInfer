@@ -56,14 +56,20 @@ and diffO = (o1: o, o2: o) : (o, o, o) =>
     )
   }
 and diffTyp = (typ1: typ, typ2: typ) : diffTyp => {
-  let same = () => {typA1: Empty, typA2: Empty, typB: typ1};
+  let same = typ => {
+    typA1: Empty(Some(typ)),
+    typA2: Empty(Some(typ)),
+    typB: typ,
+  };
   switch (typ1, typ2) {
-  | (Empty | Diff(_), _) => {typA1: Empty, typA2: typ2, typB: Empty}
-  | (_, Empty | Diff(_)) => {typA1: typ1, typA2: Empty, typB: Empty}
+  | (Empty(x), _) => {typA1: Empty(x), typA2: typ2, typB: Empty(None)}
+  | (Diff(_), _) => {typA1: Empty(None), typA2: typ2, typB: Empty(None)}
+  | (_, Empty(x)) => {typA1: typ1, typA2: Empty(x), typB: Empty(None)}
+  | (_, Diff(_)) => {typA1: typ1, typA2: Empty(None), typB: Empty(None)}
 
-  | (Number(x), Number(y)) when x == y => same()
-  | (String(x), String(y)) when x == y => same()
-  | (Boolean(x), Boolean(y)) when x == y => same()
+  | (Number(x), Number(y)) when x == y => same(typ1)
+  | (String(x), String(y)) when x == y => same(typ1)
+  | (Boolean(x), Boolean(y)) when x == y => same(typ1)
 
   | (Object(d1), Object(d2)) =>
     let dA1 = Js.Dict.empty();
@@ -96,16 +102,20 @@ and diffTyp = (typ1: typ, typ2: typ) : diffTyp => {
     d2 |. Js.Dict.entries |. Array.forEach(doItem2);
     d1 |. Js.Dict.entries |. Array.forEach(doItem1);
     let typA1 =
-      dA1 |. Js.Dict.entries |. Array.length == 0 ? Empty : dA1 |. Object;
+      dA1 |. Js.Dict.entries |. Array.length == 0 ?
+        Empty(dA1 |. Object |. Some) : dA1 |. Object;
     let typA2 =
-      dA2 |. Js.Dict.entries |. Array.length == 0 ? Empty : dA2 |. Object;
+      dA2 |. Js.Dict.entries |. Array.length == 0 ?
+        Empty(dA2 |. Object |. Some) : dA2 |. Object;
     let typB = dB |. Object;
     {typA1, typA2, typB};
 
   | (Array(styp1), Array(styp2)) =>
     let {stypA1, stypA2, stypB} = diffStyp(styp1, styp2);
-    let typA1 = stypIsEmpty(stypA1) ? Empty : Array(stypA1);
-    let typA2 = stypIsEmpty(stypA2) ? Empty : Array(stypA2);
+    let typA1 =
+      stypIsEmpty(stypA1) ? Empty(Some(Array(stypA1))) : Array(stypA1);
+    let typA2 =
+      stypIsEmpty(stypA2) ? Empty(Some(Array(stypA2))) : Array(stypA2);
     let typB = Array(stypB);
     {typA1, typA2, typB};
   | (Number(_), _)
@@ -152,7 +162,7 @@ and diffUnion = (styp1, styp2, styps1: list(styp), styps2: list(styp)) : t => {
   let {stypUA1, stypUA2, stypUB} = plus(styps1, styps2);
   let toUnion = styps =>
     switch (styps |. List.keep(styp => ! stypIsEmpty(styp))) {
-    | [] => Empty
+    | [] => Empty(None)
     | [styp] => styp.typ
     | styps1 => styps1 |. makeUnion
     };
@@ -183,7 +193,7 @@ let rec combine = (stypA1: styp, stypA2: styp, stypB: styp) : styp =>
   }
 and combineT = (typA1: typ, typA2: typ, typB: typ) : typ =>
   switch (typA1, typA2, typB) {
-  | (Array(_) | Empty, Array(_) | Empty, Array(stypB)) =>
+  | (Array(_) | Empty(_), Array(_) | Empty(_), Array(stypB)) =>
     let getStyp = typ =>
       switch (typ) {
       | Array(styp) => styp
@@ -192,7 +202,7 @@ and combineT = (typA1: typ, typA2: typ, typB: typ) : typ =>
     let stypA1 = typA1 |. getStyp;
     let stypA2 = typA2 |. getStyp;
     combine(stypA1, stypA2, stypB) |. Array;
-  | (Object(_) | Empty, Object(_) | Empty, Object(dictB)) =>
+  | (Object(_) | Empty(_), Object(_) | Empty(_), Object(dictB)) =>
     let d = Js.Dict.empty();
     let getDict = typ =>
       switch (typ) {

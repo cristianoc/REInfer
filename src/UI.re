@@ -101,7 +101,14 @@ let rec toComponentStyp =
 }
 and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
   switch (typ) {
-  | Empty => baseType(fmt.same ? "same" : "empty")
+  | Empty(None) => baseType("empty")
+  | Empty(Some(typ)) =>
+    <TreeView
+      key="same"
+      nodeLabel=(baseType("same"))
+      collapsed=true
+      child=(typ |. toComponentT(~ctx, ~fmt=fmtDelta))
+    />
   | Number(_)
   | String(_)
   | Boolean(_) => typ |. constToString |. baseType

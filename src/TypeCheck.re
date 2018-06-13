@@ -15,7 +15,7 @@ let rec fromJson = (json: Js.Json.t) : styp =>
       o: NotOpt,
       p: P.one,
     }
-  | JSONNull => {typ: Empty, o: Opt(P.one), p: P.one}
+  | JSONNull => {typ: Empty(None), o: Opt(P.one), p: P.one}
   | JSONString(x) => {
       typ: String(singletonTypes ? Some(x) : None),
       o: NotOpt,
@@ -41,7 +41,7 @@ let rec fromJson = (json: Js.Json.t) : styp =>
     };
   | JSONArray(a) =>
     a
-    |. Array.reduce({typ: Empty, o: NotOpt, p: P.zero}, (styp, json) =>
+    |. Array.reduce({typ: Empty(None), o: NotOpt, p: P.zero}, (styp, json) =>
          styp ++ fromJson(json)
        )
     |. (styp => {typ: Array(styp), o: NotOpt, p: P.one})
@@ -69,8 +69,8 @@ and plusTyp = (typ1, typ2) : option(typ) =>
   switch (typ1, typ2) {
   | (Diff(typ, _, _), _) => plusTyp(typ, typ2)
   | (_, Diff(typ, _, _)) => plusTyp(typ1, typ)
-  | (Empty, t)
-  | (t, Empty) => t |. Some
+  | (Empty(_), t)
+  | (t, Empty(_)) => t |. Some
   | (Number(x), Number(y)) => x == y ? Number(x) |. Some : None
   | (String(x), String(y)) => x == y ? String(x) |. Some : None
   | (Boolean(x), Boolean(y)) => x == y ? Boolean(x) |. Some : None

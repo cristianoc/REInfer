@@ -27,7 +27,7 @@ type o =
   | Opt(p);
 
 type typ =
-  | Empty
+  | Empty(option(typ)) /* Represent "same" for diff if not None */
   | Number(option(float))
   | String(option(string))
   | Boolean(option(bool))
@@ -55,13 +55,18 @@ let constToString = typ =>
   | _ => assert(false)
   };
 
+let typIsEmpty = typ =>
+  switch (typ) {
+  | Empty(_) => true
+  | _ => false
+  };
 let stypIsNull = (styp: styp) =>
-  styp.typ == Empty && styp.o == Opt(P.one) && styp.p == P.zero;
+  styp.typ |. typIsEmpty && styp.o == Opt(P.one) && styp.p == P.zero;
 
-let stypEmpty = {typ: Empty, o: NotOpt, p: P.zero};
+let stypEmpty = {typ: Empty(None), o: NotOpt, p: P.zero};
 let stypIsEmpty = styp =>
   switch (styp) {
-  | {typ: Empty, o: NotOpt, p} when p == P.zero => true
+  | {typ: Empty(_), o: NotOpt, p} when p == P.zero => true
   | _ => false
   };
 
