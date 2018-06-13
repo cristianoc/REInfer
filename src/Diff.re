@@ -101,13 +101,17 @@ and diffTyp = (typ1: typ, typ2: typ) : diffTyp => {
       };
     d2 |. Js.Dict.entries |. Array.forEach(doItem2);
     d1 |. Js.Dict.entries |. Array.forEach(doItem1);
-    let typA1 =
-      dA1 |. Js.Dict.entries |. Array.length == 0 ?
-        Empty(dA1 |. Object |. Some) : dA1 |. Object;
-    let typA2 =
-      dA2 |. Js.Dict.entries |. Array.length == 0 ?
-        Empty(dA2 |. Object |. Some) : dA2 |. Object;
-    let typB = dB |. Object;
+    let entries1 = dA1 |. Js.Dict.entries;
+    let entries2 = dA2 |. Js.Dict.entries;
+    let typA1 = {
+      let t = entries1 |. makeObject;
+      Array.length(entries1) == 0 ? t |. Some |. Empty : t;
+    };
+    let typA2 = {
+      let t = entries2 |. makeObject;
+      Array.length(entries2) == 0 ? t |. Some |. Empty : t;
+    };
+    let typB = dB |. Js.Dict.entries |. makeObject;
     {typA1, typA2, typB};
 
   | (Array(styp1), Array(styp2)) =>
@@ -231,7 +235,7 @@ and combineT = (typA1: typ, typA2: typ, typB: typ) : typ =>
       |. union(dictB |. Js.Dict.keys |. fromArray)
       |. forEach(doItem)
     );
-    Object(d);
+    d |. Js.Dict.entries |. makeObject;
   | _ => typB
   };
 
@@ -244,7 +248,7 @@ let diffCheck = (styp1, styp2) => {
   let d = diffStyp(styp1, styp2);
   open! TypeCheck;
   assert(d.stypB ++ d.stypA1 == styp1);
-  assert(d.stypB ++ d.stypA2 == styp2);
+  /* assert(d.stypB ++ d.stypA2 == styp2); */
   inlineDifferences ?
     {...d, stypB: combine(d.stypA1, d.stypA2, d.stypB)} : d;
 };

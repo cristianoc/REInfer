@@ -32,10 +32,7 @@ let rec fromJson = (json: Js.Json.t) : styp =>
       (lbl, styp);
     };
     {
-      typ:
-        Object(
-          Js.Dict.entries(dict) |. Array.map(do_entry) |. Js.Dict.fromArray,
-        ),
+      typ: Js.Dict.entries(dict) |. Array.map(do_entry) |. makeObject,
       o: NotOpt,
       p: P.one,
     };
@@ -83,7 +80,7 @@ and plusTyp = (typ1, typ2) : option(typ) =>
       };
     d1 |. Js.Dict.entries |. Array.forEach(doItem);
     d2 |. Js.Dict.entries |. Array.forEach(doItem);
-    Object(d |. Js.Dict.entries |. Js.Dict.fromArray) |. Some;
+    d |. Js.Dict.entries |. makeObject |. Some;
   | (Array(styp1), Array(styp2)) =>
     let styp = styp1 ++ styp2;
     styp |. Array |. Some;

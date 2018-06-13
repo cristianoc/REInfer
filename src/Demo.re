@@ -83,8 +83,8 @@ let testDynamicallyTypedJson = () => {
   };
 };
 
-let res = testSmallDiff(8);
-/* let res = testBigDiff(); */
+/* let res = testSmallDiff(8); */
+let res = testBigDiff();
 let test = () => res;
 
 testDynamicallyTypedJson();

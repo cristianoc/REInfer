@@ -41,8 +41,6 @@ and styp = {
   p,
 };
 
-let compareStyp = (x: styp, y: styp) : int => compare(x, y);
-
 let constToString = typ =>
   switch (typ) {
   | Number(x) =>
@@ -76,4 +74,10 @@ let stypToUnion = styp =>
   | _ => [styp]
   };
 
+let compareEntries = ((lbl1, _), (lbl2, _)) => compare(lbl1, lbl2);
+
+let makeObject = arr =>
+  arr |. List.fromArray |. List.sort(compareEntries) |. Js.Dict.fromList |. Object;
+
+let compareStyp = (x: styp, y: styp) : int => compare(x, y);
 let makeUnion = styps => styps |. List.sort(compareStyp) |. Union;
