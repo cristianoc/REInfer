@@ -67,11 +67,11 @@ let questionMark = p =>
 type fmt = {
   plus: bool /* print '+' in front of number */,
   percent: bool /* show percentage instead of absolute numbers */,
-  same: bool /* print same */
+  explicitP: bool /* never hide the value of p */,
 };
 
-let fmtDefault = {plus: false, percent: true, same: false};
-let fmtDelta = {plus: true, percent: false, same: true};
+let fmtDefault = {plus: false, percent: true, explicitP: true};
+let fmtDelta = {plus: true, percent: false, explicitP: true};
 
 let rec toComponentStyp =
         (styp: styp, ~ctx: p, ~fmt: fmt)
@@ -85,7 +85,7 @@ let rec toComponentStyp =
       (fmt.plus ? "+" : "") ++ P.toString(styp.p);
     };
   let p =
-    pUnchanged || styp.p == P.one ?
+    ! fmt.explicitP && (pUnchanged || styp.p == P.one) ?
       ReasonReact.null :
       <span style=Color.(style(blue))> (ReasonReact.string(pString)) </span>;
   let o =
