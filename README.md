@@ -33,27 +33,27 @@ val2:
 
 Type inference will produce types `styp1` and `styp2`
 
-![](doc/inference.png)
+<img src="doc/inference.png" width="400">
 
 The numerical information indicates that fied `x` occurs once. But in the second value it has optional type `? 1`, indicating that 1 (out of 1) value of x is null.
 
 Numbers begin to add up when using arrays, or when sampling multiple values.
 For example, `[null,2,3,4]` has this type:
 
-![](doc/array.png)
+<img src="doc/array.png" width="170">
 
 
 ### Example of diff
 
 Once the types for `val1` and `val2` have been computed, a difference algorithm computes a type `stypB`:
 
-![](doc/diffB.png)
+<img src="doc/diffB.png" width="200">
 
 The type highlights what sub-parts which are in common. Also, `lhs` highlights the subpart that the first type has in addition to the common part, and correspondingly for `rhs`.
 
 It is also possible to look at `stypA1` and `stypA2` that indicate the overall difference between the common type and the two resulting ones:
 
-![](doc/diffA1A2.png)
+<img src="doc/diffA1A2.png" width="400">
 
 
 ## References
