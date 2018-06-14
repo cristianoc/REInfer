@@ -28,9 +28,9 @@ let logDiff = ({styp1, styp2, stypA1, stypA2, stypB}) => {
 let testSmallDiff = n => {
   let examples = [|
     ({| {"x": "hello"} |}, {| {"x": null, "y":0} |}),
+    ("[null,2,3,4]", "[3]"),
     ({| [{"x": {"y" : "hello"}}] |}, {| [{"x": {"z" : "hello"}}] |}),
     ("null", "3"),
-    ("[null,2]", "[3]"),
     ({| [{"a":3},{"b":3}] |}, {| [] |}),
     ({| [null,{"b":3}] |}, {| [] |}),
     ({| [3, "hello", true, 4] |}, {| [1,2,3] |}),

@@ -21,7 +21,7 @@ npm run serve
 Then open the served page in the browser and edit `Demo.re`.
 
 
-### Example
+### Example of type inference
 
 ```
 val1:
@@ -31,18 +31,30 @@ val2:
 {"x":null, "y":0}
 ```
 
-The statistical type inferred will be
-```
-  {"x":(string?::1), "y":(number:: 1)} :: 2
-```
+Type inference will produce types `styp1` and `styp2`
 
-which represented in % form is
-```
-  {"x":(string? 50%), "y":(number 50%)}
-```
+![](doc/inference.png)
 
-So `"x"` is nullable, and 50% of the time is present and not null.
-Instead `"y"` is a number, and is present 50% of the time.
+The numerical information indicates that fied `x` occurs once. But in the second value it has optional type `? 1`, indicating that 1 (out of 1) value of x is null.
+
+Numbers begin to add up when using arrays, or when sampling multiple values.
+For example, `[null,2,3,4]` has this type:
+
+![](doc/array.png)
+
+
+### Example of diff
+
+Once the types for `val1` and `val2` have been computed, a difference algorithm computes a type `stypB`:
+
+![](doc/diffB.png)
+
+The type highlights what sub-parts which are in common. Also, `lhs` highlights the subpart that the first type has in addition to the common part, and correspondingly for `rhs`.
+
+It is also possible to look at `stypA1` and `stypA2` that indicate the overall difference between the common type and the two resulting ones:
+
+![](doc/diffA1A2.png)
+
 
 ## References
 
