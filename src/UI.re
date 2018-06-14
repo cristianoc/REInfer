@@ -85,6 +85,7 @@ let rec toComponentStyp =
   let style = Color.(style(stypIsNull(styp) ? red : black));
   let shouldAddDecorator =
     switch (styp.typ) {
+    | Empty
     | Number(_)
     | String(_)
     | Boolean(_) => true
