@@ -7,14 +7,6 @@ let testSmall = () => {
   Js.log(styp |. PrettyPrint.styp);
 };
 
-let platinum =
-  lazy (Query.reasonPlatinumThread |. Js.Json.parseExn |. fromJson);
-
-let bronze = lazy (Query.reasonBronzeThread |. Js.Json.parseExn |. fromJson);
-
-let testBronze = () => Js.log(Lazy.force(bronze) |. PrettyPrint.styp);
-let testPlatinum = () => Js.log(Lazy.force(platinum) |. PrettyPrint.styp);
-
 open Diff;
 
 let logDiff = ({styp1, styp2, stypA1, stypA2, stypB}) => {
@@ -54,13 +46,13 @@ let testSmallDiff = (~mode=defaultMode, n) => {
   diff;
 };
 
-let testBigDiff = () => {
-  let styp1 = Lazy.force(bronze);
-  let styp2 = Lazy.force(platinum);
+/* let testBigDiff = () => {
+  let styp1 = Query.reasonBronzeThread |. Js.Json.parseExn |. fromJson;;
+  let styp2 = Query.reasonPlatinumThread |. Js.Json.parseExn |. fromJson;
   let diff = diffCheck(styp1, styp2);
   logDiff(diff);
   diff;
-};
+}; */
 
 let testDynamicallyTypedJson = () => {
   open! DynTypedJson;
