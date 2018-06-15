@@ -25,9 +25,14 @@ let logDiff = ({styp1, styp2, stypA1, stypA2, stypB}) => {
   Js.log2("stypA2", stypA2 |. PrettyPrint.styp);
 };
 
-let testSmallDiff = n => {
+let testSmallDiff = (~mode=defaultMode, n) => {
   let examples = [|
     ({| {"x": "hello"} |}, {| {"x": null, "y":0} |}),
+    ({| [ "hell", 0, "world"] |}, {| [ "hell", "o", "world"] |}),
+    (
+      {| ["h", "e", "l", "l", "o", "w", "o", "r", "l", "d"] |},
+      {| ["h", "e", "l", "l", 0, "w", "o", "r", "l", "d"] |},
+    ),
     ("[null,2,3,4]", "[3]"),
     ({| [{"x": {"y" : "hello"}}] |}, {| [{"x": {"z" : "hello"}}] |}),
     ("null", "3"),
@@ -42,8 +47,8 @@ let testSmallDiff = n => {
          {"x": ["p","s"]}]|},
     ),
   |];
-  let styp1 = examples[n] |. fst |. Js.Json.parseExn |. fromJson;
-  let styp2 = examples[n] |. snd |. Js.Json.parseExn |. fromJson;
+  let styp1 = examples[n] |. fst |. Js.Json.parseExn |. fromJson(~mode);
+  let styp2 = examples[n] |. snd |. Js.Json.parseExn |. fromJson(~mode);
   let diff = diffCheck(styp1, styp2);
   logDiff(diff);
   diff;
@@ -76,6 +81,7 @@ let testDynamicallyTypedJson = () => {
 };
 
 let res = testSmallDiff(0);
+/* let res = testSmallDiff(~mode=singletonMode, 2); */
 /* let res = testBigDiff(); */
 let test = () => res;
 

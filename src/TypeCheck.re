@@ -1,34 +1,37 @@
 open Belt;
 open Styp;
 
-let singletonTypes = false;
+type mode = {singletonTypes: bool};
 
-let rec fromJson = (json: Js.Json.t) : styp =>
+let defaultMode = {singletonTypes: false};
+let singletonMode = {singletonTypes: true};
+
+let rec fromJson = (~mode=defaultMode, json: Js.Json.t) : styp =>
   switch (Js.Json.classify(json)) {
   | JSONFalse => {
-      typ: Boolean(singletonTypes ? Some(false) : None),
+      typ: Boolean(mode.singletonTypes ? Some(false) : None),
       o: NotOpt,
       p: P.one,
     }
   | JSONTrue => {
-      typ: Boolean(singletonTypes ? Some(true) : None),
+      typ: Boolean(mode.singletonTypes ? Some(true) : None),
       o: NotOpt,
       p: P.one,
     }
   | JSONNull => {typ: Empty, o: Opt(P.one), p: P.one}
   | JSONString(x) => {
-      typ: String(singletonTypes ? Some(x) : None),
+      typ: String(mode.singletonTypes ? Some(x) : None),
       o: NotOpt,
       p: P.one,
     }
   | JSONNumber(x) => {
-      typ: Number(singletonTypes ? Some(x) : None),
+      typ: Number(mode.singletonTypes ? Some(x) : None),
       o: NotOpt,
       p: P.one,
     }
   | JSONObject(dict) =>
     let do_entry = ((lbl, v)) => {
-      let styp = fromJson(v);
+      let styp = fromJson(~mode, v);
       (lbl, styp);
     };
     {
@@ -39,7 +42,7 @@ let rec fromJson = (json: Js.Json.t) : styp =>
   | JSONArray(a) =>
     a
     |. Array.reduce({typ: Empty, o: NotOpt, p: P.zero}, (styp, json) =>
-         styp ++ fromJson(json)
+         styp ++ fromJson(~mode, json)
        )
     |. (styp => {typ: Array(styp), o: NotOpt, p: P.one})
   }

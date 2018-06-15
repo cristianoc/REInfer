@@ -55,6 +55,24 @@ It is also possible to look at `stypA1` and `stypA2` that indicate the overall d
 
 <img src="doc/diffA1A2.png" width="400">
 
+### Example of union types
+
+Some data formats allow differet types of data in the same position.
+
+For example: `[ "hell", 0, "world"]` has this inferred type:
+
+<img src="doc/union.png" width="150">
+
+Diff is also supported with union types.
+
+### Example of singleton types
+
+While by default basic types are at the granularity of string/number/boolean, it's possible to turn on singleton types mode so each constant has a different type.
+
+For example, `["h", "e", "l", "l", "o", "w", "o", "r", "l", "d"]` in singleton type mode has inferred type:
+
+<img src="doc/singleton.png" width="130">
+
 
 ## References
 
