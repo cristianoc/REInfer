@@ -180,11 +180,13 @@ Given a set of sampled data `val1, …, valn` define a process of type inference
 
 [Abduction](doc/Abduction.md): `|- styp1 + <stypA> = styp2` and `|- typ1 + <typA> = typ2` and `|- o1 + <oA> = o2`.
 
-Want smallest solution w.r.t. `<=` where `styp1 <= styp2` if there is `styp` such that `|- styp1 + styp = styp2`.
+With abduction, the inputs are `styp1` and `styp2`, and the output is `stypA`, the abduced value.
 
-Abduction computes the smallest representation of the difference between statistical types.
+There are many solutions to the abduction question. We want smallest solution w.r.t. `<=` where `styp1 <= styp2` if there is `styp` such that `|- styp1 + styp = styp2`.
 
-(Note negation corresponding to + does not exist)
+Abduction aims to compute the smallest representation of the difference between statistical types.
+
+It turns out that this form of difference is not sufficient because there are incomparable types and the negation corresponding to `+` does not exist. So another form of diff is required.
 
 
 ### Diff for Statistical Types
@@ -192,7 +194,10 @@ Abduction computes the smallest representation of the difference between statist
 [Diff](doc/Diff.md): `|- <stypA1,stypA2> + <stypB> = styp1,styp2`
 and `|- <typA1,typA2> + <typB> = typ1,typ2` and `|- <oA1,oA2> + <oB> = o1,o2`.
 
-Want largest solution w.r.t. `<=` for the `B` part, and smallest for the `A1` and `A2` parts, where `styp1 <= styp2` if there is `styp` such that `|- styp1 + styp = styp2`.
+The inputs are `styp1` and `styp2` and the outputs are `stypB` and `stypA1` and `stypA2`. The common part is `stypB` and the two deltas are `stypA1` and `stypA2`.
+The correctness critera are that `stypA1 + stypB = styp1` and `stypA2 + stypB = styp2`.
+
+There are many solutions to the diff question. We want the largest solution w.r.t. `<=` for the `B` part, and smallest for the `A1` and `A2` parts, where `styp1 <= styp2` if there is `styp` such that `|- styp1 + styp = styp2`.
 
 
 ### Extension: Union Types
@@ -213,4 +218,10 @@ The conversion `|- u(styp) = stypU` is also defined below.
 
 ### Extension: Singleton Types
 
-TODO
+```
+typ ::=
+  number | 0 | 1 | 2 | ...
+  string | "hello" | ...
+  boolean | true | false
+  ...
+```
