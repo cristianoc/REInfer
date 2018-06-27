@@ -197,18 +197,20 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
         <TreeView
           key=lbl
           nodeLabel=(lbl |. nodeBrown)
-          collapsed=true
+          collapsed=false
           child=(styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
         />;
     };
-    <div>
-      <TreeView
-        nodeLabel=("common" |. nodeBrown)
-        collapsed=true
-        child=(t |. toComponentT(~ctx, ~fmt))
-      />
-      (side(~left=true))
-      (side(~left=false))
+    <div className="row">
+      <div className="column3"> (side(~left=true)) </div>
+      <div className="column3">
+        <TreeView
+          nodeLabel=("common" |. nodeBrown)
+          collapsed=false
+          child=(t |. toComponentT(~ctx, ~fmt))
+        />
+      </div>
+      <div className="column3"> (side(~left=false)) </div>
     </div>;
   };
 
@@ -231,6 +233,9 @@ module Diff = {
     ...component,
     render: _ =>
       <div>
+        <div className="centerText">
+          (ReasonReact.string @@ "Inferred Types")
+        </div>
         <div className="row">
           <div className="column2">
             <Styp styp=diff.styp1 name="styp1" />
@@ -239,7 +244,11 @@ module Diff = {
             <Styp styp=diff.styp2 name="styp2" />
           </div>
         </div>
-        <div className="column1"> <Styp styp=diff.stypB name="stypB" /> </div>
+        <div className="centerText">
+          (ReasonReact.string @@ "Common Part")
+        </div>
+        <div> <Styp styp=diff.stypB name="stypB" /> </div>
+        <div className="centerText"> (ReasonReact.string @@ "Deltas") </div>
         <div className="row">
           <div className="column2">
             <Styp name="stypA1" styp=diff.stypA1 fmt=fmtDelta />
