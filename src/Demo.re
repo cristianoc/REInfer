@@ -47,7 +47,7 @@ let testSmallDiff = (~mode=defaultMode, n) => {
 };
 
 /* let testBigDiff = () => {
-  let styp1 = Query.reasonBronzeThread |. Js.Json.parseExn |. fromJson;;
+  let styp1 = Query.reasonBronzeThread |. Js.Json.parseExn |. fromJson;
   let styp2 = Query.reasonPlatinumThread |. Js.Json.parseExn |. fromJson;
   let diff = diffCheck(styp1, styp2);
   logDiff(diff);
