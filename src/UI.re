@@ -192,14 +192,15 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt) : ReasonReact.reactElement =>
     let side = (~left) => {
       let lbl = left ? "lhs" : "rhs";
       let styp = left ? lhs : rhs;
-      Styp.stypIsEmpty(styp) ?
-        ReasonReact.null :
-        <TreeView
-          key=lbl
-          nodeLabel=(lbl |. nodeBrown)
-          collapsed=false
-          child=(styp |. toComponentStyp(~ctx, ~fmt=fmtDelta))
-        />;
+      <TreeView
+        key=lbl
+        nodeLabel=(lbl |. nodeBrown)
+        collapsed=false
+        child=(
+          Styp.stypIsEmpty(styp) ?
+            ReasonReact.null : styp |. toComponentStyp(~ctx, ~fmt=fmtDelta)
+        )
+      />;
     };
     <div className="row">
       <div className="column3"> (side(~left=true)) </div>
