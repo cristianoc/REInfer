@@ -76,6 +76,8 @@ For example, `["h", "e", "l", "l", "o", "w", "o", "r", "l", "d"]` in singleton t
 
 ## References
 
+* Sean Grove's talk at ReasonConf 2018 <https://www.youtube.com/watch?v=OT7xOpPCGds>.
+
 * Tree view UI adapted from [react-treeview](https://github.com/chenglou/react-treeview).
 
 * Abduction in shape analysis <https://dl.acm.org/citation.cfm?id=2049700>.
