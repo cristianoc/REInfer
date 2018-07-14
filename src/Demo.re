@@ -1,3 +1,4 @@
+open Belt;
 let testSmall = () => {
   let small = Js.Json.parseExn({| [{"name":null} ] |});
 
@@ -36,23 +37,40 @@ let testSmallDiff = (~mode=TypeCheck.defaultMode, n) => {
     ),
   |];
   let styp1 =
-    examples[n] |. fst |. Js.Json.parseExn |. TypeCheck.fromJson(~mode);
+    examples
+    |. Array.getExn(n)
+    |. fst
+    |. Js.Json.parseExn
+    |. TypeCheck.fromJson(~mode);
   let styp2 =
-    examples[n] |. snd |. Js.Json.parseExn |. TypeCheck.fromJson(~mode);
+    examples
+    |. Array.getExn(n)
+    |. snd
+    |. Js.Json.parseExn
+    |. TypeCheck.fromJson(~mode);
   let diff = Diff.diffCheck(styp1, styp2);
   logDiff(diff);
   diff;
 };
 
+let testSamples = (~mode=TypeCheck.defaultMode, ()) => {
+  let styps =
+    [{| {"x": 1, "y":"hello"} |}, {| {"x": 2} |}, {| {"x": 3, "y":null} |}]
+    |. List.map(Js.Json.parseExn)
+    |. List.map(TypeCheck.fromJson(~mode));
+  let samples = Samples.empty |. Samples.addMany(styps);
+  samples |. Samples.getAllDiffs;
+};
+
 /* let testBigDiff = () => {
-  let styp1 =
-    Query.reasonBronzeThread |. Js.Json.parseExn |. TypeCheck.fromJson;
-  let styp2 =
-    Query.reasonPlatinumThread |. Js.Json.parseExn |. TypeCheck.fromJson;
-  let diff = Diff.diffCheck(styp1, styp2);
-  logDiff(diff);
-  diff;
-}; */
+     let styp1 =
+       Query.reasonBronzeThread |. Js.Json.parseExn |. TypeCheck.fromJson;
+     let styp2 =
+       Query.reasonPlatinumThread |. Js.Json.parseExn |. TypeCheck.fromJson;
+     let diff = Diff.diffCheck(styp1, styp2);
+     logDiff(diff);
+     diff;
+   }; */
 
 let testDynamicallyTypedJson = () => {
   open! DynTypedJson;
@@ -85,9 +103,10 @@ let testSerializer = (o, testName) => {
   o;
 };
 
-let res = testSmallDiff(0);
-/* let res = testSmallDiff(~mode=singletonMode, 2); */
-/* let res = testBigDiff(); */
+let res = [testSmallDiff(0)];
+/* let res = [testSmallDiff(~mode=TypeCheck.singletonMode, 2)]; */
+/* let res = [testBigDiff()]; */
+/* let res = testSamples(); */
 let test = () => res |. testSerializer("diff");
 
 /* fails: serialization of functions

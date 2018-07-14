@@ -54,6 +54,20 @@ let constToString = typ =>
   | _ => assert(false)
   };
 
+let rec stripDiffStyp = styp => {...styp, typ: styp.typ |. stripDiffTyp}
+and stripDiffTyp = typ =>
+  switch (typ) {
+  | Empty
+  | Number(_)
+  | String(_)
+  | Boolean(_) => typ
+  | Same(typ) => Same(typ |. stripDiffTyp)
+  | Object(d) => Js.Dict.map((. styp) => stripDiffStyp(styp), d) |. Object
+  | Array(styp) => Array(styp |. stripDiffStyp)
+  | Union(styps) => styps |. List.map(stripDiffStyp) |. Union
+  | Diff(t, _, _) => t |. stripDiffTyp
+  };
+
 let typIsEmpty = typ =>
   switch (typ) {
   | Empty
