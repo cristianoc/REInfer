@@ -58,8 +58,7 @@ let testSamples = (~mode=TypeCheck.defaultMode, ()) => {
     [{| {"x": 1, "y":"hello"} |}, {| {"x": 2} |}, {| {"x": 3, "y":null} |}]
     |. List.map(Js.Json.parseExn)
     |. List.map(TypeCheck.fromJson(~mode));
-  let samples = Samples.empty |. Samples.addMany(styps);
-  samples |. Samples.getAllDiffs;
+  Samples.(styps |. fromList |. getAllDiffs);
 };
 
 /* let testBigDiff = () => {
