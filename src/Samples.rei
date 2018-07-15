@@ -36,10 +36,10 @@ let getLast: t => Styp.styp;
 /** Get the second-last sample added. */
 let getPrev: t => Styp.styp;
 
-/** Get the common type as it was before adding the last element. */
+/** Get the common type as it was before adding the last sample. */
 let getPrevCommon: t => Styp.styp;
 
-/** Get the sum type as it was before adding the last element. */
+/** Get the sum type as it was before adding the last sample. */
 let getPrevSum: t => Styp.styp;
 
 /** Get the type of the aggregate sum of all the samples. */
