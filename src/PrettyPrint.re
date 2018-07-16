@@ -1,42 +1,87 @@
 open Belt;
 open Styp;
 
-let rec toJsonStyp = (styp: styp) : Js.Json.t => {
-  let jsonT = styp.typ |. toJsonTyp;
-  let oString =
-    switch (styp.o) {
-    | NotOpt => ""
-    | Opt(p1) => "?" ++ P.toString(p1)
-    };
+let pToJson = p => p |. P.toString |. Js.Json.string;
 
+let rec stypToJson = (styp: styp) : Js.Json.t => {
   let dict = Js.Dict.empty();
-  dict |. Js.Dict.set("typ", jsonT);
-  dict |. Js.Dict.set("p", styp.p |. P.toString |. Js.Json.string);
-  dict |. Js.Dict.set("o", oString |. Js.Json.string);
+  dict |. Js.Dict.set("typ", styp.typ |. typToJson);
+  switch (styp.o) {
+  | NotOpt => ()
+  | Opt(p1) => dict |. Js.Dict.set("opt", p1 |. pToJson)
+  };
+  dict |. Js.Dict.set("p", styp.p |. pToJson);
   dict |. Js.Json.object_;
 }
-and toJsonTyp = (typ: typ) : Js.Json.t =>
+and typToJson = (typ: typ) : Js.Json.t => {
+  open Js.Json;
+  let arr = a => a |. Js.Dict.fromArray |. object_;
   switch (typ) {
-  | Empty => Js.Json.string("empty")
+  | Empty => [|("kind", "Empty" |. string)|] |. Js.Dict.fromArray |. object_
   | Same(typ) =>
-    [|("same", typ |. toJsonTyp)|] |. Js.Dict.fromArray |. Js.Json.object_
+    [|("kind", "Same" |. string), ("typ", typ |. typToJson)|] |. arr
   | Number(_)
   | String(_)
-  | Boolean(_) => typ |. constToString |. Js.Json.string
+  | Boolean(_) =>
+    let kind =
+      (
+        switch (typ) {
+        | Number(_) => "Number"
+        | String(_) => "String"
+        | Boolean(_) => "Boolean"
+        | _ => assert(false)
+        }
+      )
+      |. string;
+    [|("kind", kind), ("value", typ |. constToString |. string)|] |. arr;
   | Object(d) =>
-    let doEntry = ((lbl, styp)) => (lbl, styp |. toJsonStyp);
-    Js.Dict.entries(d)
-    |. Array.map(doEntry)
-    |. Js.Dict.fromArray
-    |. Js.Json.object_;
-  | Array(styp) => [|styp |. toJsonStyp|] |. Js.Json.array
+    let entries =
+      Js.Dict.entries(d)
+      |. Array.map(((lbl, styp)) => (lbl, styp |. stypToJson))
+      |. arr;
+    [|("kind", "Object" |. string), ("entries", entries)|] |. arr;
+  | Array(styp) =>
+    let typ = styp |. stypToJson;
+    [|("kind", "Array" |. string), ("typ", typ)|] |. arr;
   | Union(styps) =>
-    styps
-    |. List.mapWithIndex((i, styp) =>
-         ("u" ++ string_of_int(i), styp |. toJsonStyp)
-       )
-    |. Js.Dict.fromList
-    |. Js.Json.object_
-  | Diff(typ, _, _) => typ |. toJsonTyp
+    let entries =
+      styps
+      |. List.toArray
+      |. Array.mapWithIndex((i, styp) =>
+           ("u" ++ string_of_int(i), styp |. stypToJson)
+         )
+      |. arr;
+    [|("kind", "Union" |. string), ("entries", entries)|] |. arr;
+  | Diff(t, lhs, rhs) =>
+    let common = t |. typToJson;
+    let lhs = lhs |. stypToJson;
+    let rhs = rhs |. stypToJson;
+    [|
+      ("kind", "Diff" |. string),
+      ("common", common),
+      ("lhs", lhs),
+      ("rhs", rhs),
+    |]
+    |. arr;
   };
-let styp = styp => styp |. toJsonStyp |. Js.Json.stringify;
+};
+
+let diffToJson = (diff: Diff.t) => {
+  let styp1 = diff.styp1 |. stypToJson;
+  let styp2 = diff.styp2 |. stypToJson;
+  let stypB = diff.stypB |. stypToJson;
+  let stypA1 = diff.stypA1 |. stypToJson;
+  let stypA2 = diff.stypA2 |. stypToJson;
+  [|
+    ("styp1", styp1),
+    ("styp2", styp2),
+    ("stypB", stypB),
+    ("stypA1", stypA1),
+    ("stypA2", stypA2),
+  |]
+  |. Js.Dict.fromArray
+  |. Js.Json.object_;
+};
+let styp = styp => styp |. stypToJson |. Js.Json.stringify;
+
+let diff = diff => diff |. diffToJson |. Js.Json.stringify;

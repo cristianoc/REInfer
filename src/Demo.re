@@ -6,13 +6,7 @@ let testSmall = () => {
   Js.log(styp |. PrettyPrint.styp);
 };
 
-let logDiff = ({Diff.styp1, styp2, stypA1, stypA2, stypB}) => {
-  Js.log2("styp1", styp1 |. PrettyPrint.styp);
-  Js.log2("styp2", styp2 |. PrettyPrint.styp);
-  Js.log2("stypB", stypB |. PrettyPrint.styp);
-  Js.log2("stypA1", stypA1 |. PrettyPrint.styp);
-  Js.log2("stypA2", stypA2 |. PrettyPrint.styp);
-};
+let logDiff = diff => Js.log(diff |. PrettyPrint.diff);
 
 let testSmallDiff = (~mode=TypeCheck.defaultMode, n) => {
   let examples = [|
