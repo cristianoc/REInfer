@@ -250,3 +250,20 @@ let diffCheck = (styp1, styp2) => {
   inlineDifferences ?
     {...d, stypB: combineStyp(d.stypA1, d.stypA2, d.stypB)} : d;
 };
+
+let toJson = (diff: t) : Js.Json.t => {
+  let styp1 = diff.styp1 |. stypToJson;
+  let styp2 = diff.styp2 |. stypToJson;
+  let stypB = diff.stypB |. stypToJson;
+  let stypA1 = diff.stypA1 |. stypToJson;
+  let stypA2 = diff.stypA2 |. stypToJson;
+  [|
+    ("styp1", styp1),
+    ("styp2", styp2),
+    ("stypB", stypB),
+    ("stypA1", stypA1),
+    ("stypA2", stypA2),
+  |]
+  |. Js.Dict.fromArray
+  |. Js.Json.object_;
+};

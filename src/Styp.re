@@ -107,3 +107,68 @@ let makeObject = arr =>
 
 let compareStyp = (x: styp, y: styp) : int => compare(x, y);
 let makeUnion = styps => styps |. List.sort(compareStyp) |. Union;
+
+let pToJson = p => p |. P.toString |. Js.Json.string;
+
+let rec stypToJson = (styp: styp) : Js.Json.t => {
+  let dict = Js.Dict.empty();
+  dict |. Js.Dict.set("typ", styp.typ |. typToJson);
+  switch (styp.o) {
+  | NotOpt => ()
+  | Opt(p1) => dict |. Js.Dict.set("opt", p1 |. pToJson)
+  };
+  dict |. Js.Dict.set("p", styp.p |. pToJson);
+  dict |. Js.Json.object_;
+}
+and typToJson = (typ: typ) : Js.Json.t => {
+  open Js.Json;
+  let arr = a => a |. Js.Dict.fromArray |. object_;
+  switch (typ) {
+  | Empty => [|("kind", "Empty" |. string)|] |. Js.Dict.fromArray |. object_
+  | Same(typ) =>
+    [|("kind", "Same" |. string), ("typ", typ |. typToJson)|] |. arr
+  | Number(_)
+  | String(_)
+  | Boolean(_) =>
+    let kind =
+      (
+        switch (typ) {
+        | Number(_) => "Number"
+        | String(_) => "String"
+        | Boolean(_) => "Boolean"
+        | _ => assert(false)
+        }
+      )
+      |. string;
+    [|("kind", kind), ("value", typ |. constToString |. string)|] |. arr;
+  | Object(d) =>
+    let entries =
+      Js.Dict.entries(d)
+      |. Array.map(((lbl, styp)) => (lbl, styp |. stypToJson))
+      |. arr;
+    [|("kind", "Object" |. string), ("entries", entries)|] |. arr;
+  | Array(styp) =>
+    let typ = styp |. stypToJson;
+    [|("kind", "Array" |. string), ("typ", typ)|] |. arr;
+  | Union(styps) =>
+    let entries =
+      styps
+      |. List.toArray
+      |. Array.mapWithIndex((i, styp) =>
+           ("u" ++ string_of_int(i), styp |. stypToJson)
+         )
+      |. arr;
+    [|("kind", "Union" |. string), ("entries", entries)|] |. arr;
+  | Diff(t, lhs, rhs) =>
+    let common = t |. typToJson;
+    let lhs = lhs |. stypToJson;
+    let rhs = rhs |. stypToJson;
+    [|
+      ("kind", "Diff" |. string),
+      ("common", common),
+      ("lhs", lhs),
+      ("rhs", rhs),
+    |]
+    |. arr;
+  };
+};

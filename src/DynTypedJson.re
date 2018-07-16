@@ -9,7 +9,7 @@ let empty = () => {json: Js.Json.null, styp: ref(stypEmpty)};
 
 let log = x => {
   Js.log2("json:", x.json);
-  Js.log2("styp:", x.styp^ |. PrettyPrint.styp);
+  Js.log2("styp:", x.styp^ |. stypToJson |. Js.Json.stringify);
 };
 
 let assignJson = (x, json) => {

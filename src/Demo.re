@@ -3,10 +3,10 @@ let testSmall = () => {
   let small = Js.Json.parseExn({| [{"name":null} ] |});
 
   let styp = TypeCheck.fromJson(small);
-  Js.log(styp |. PrettyPrint.styp);
+  Js.log(styp |. Styp.stypToJson |. Js.Json.stringify);
 };
 
-let logDiff = diff => Js.log(diff |. PrettyPrint.diff);
+let logDiff = diff => Js.log(diff |. Diff.toJson |. Js.Json.stringify);
 
 let testSmallDiff = (~mode=TypeCheck.defaultMode, n) => {
   let examples = [|
