@@ -5,7 +5,6 @@ import * as Js_dict from "bs-platform/lib/es6/js_dict.js";
 import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
 import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Belt_Array from "bs-platform/lib/es6/belt_Array.js";
-import * as Pervasives from "bs-platform/lib/es6/pervasives.js";
 import * as Belt_Option from "bs-platform/lib/es6/belt_Option.js";
 import * as Caml_primitive from "bs-platform/lib/es6/caml_primitive.js";
 import * as Caml_builtin_exceptions from "bs-platform/lib/es6/caml_builtin_exceptions.js";
@@ -35,13 +34,21 @@ var P = {
   toFloat: toFloat
 };
 
+function string_of_bool(b) {
+  if (b) {
+    return "true";
+  } else {
+    return "false";
+  }
+}
+
 function constToString(typ) {
   if (typeof typ === "number") {
     throw [
           Caml_builtin_exceptions.assert_failure,
           /* tuple */[
             "Styp.re",
-            53,
+            55,
             9
           ]
         ];
@@ -57,14 +64,16 @@ function constToString(typ) {
                       }));
       case /* Boolean */3 :
           return "boolean" + Belt_Option.mapWithDefault(typ[0], "", (function (b) {
-                        return ":" + Pervasives.string_of_bool(b);
+                        return ":" + (
+                                b ? "true" : "false"
+                              );
                       }));
       default:
         throw [
               Caml_builtin_exceptions.assert_failure,
               /* tuple */[
                 "Styp.re",
-                53,
+                55,
                 9
               ]
             ];
@@ -271,7 +280,7 @@ function typToJson(typ) {
                 Caml_builtin_exceptions.assert_failure,
                 /* tuple */[
                   "Styp.re",
-                  133,
+                  135,
                   15
                 ]
               ];
@@ -291,7 +300,7 @@ function typToJson(typ) {
                     Caml_builtin_exceptions.assert_failure,
                     /* tuple */[
                       "Styp.re",
-                      133,
+                      135,
                       15
                     ]
                   ];
@@ -313,6 +322,7 @@ function typToJson(typ) {
 
 export {
   P ,
+  string_of_bool ,
   constToString ,
   stripDiffStyp ,
   stripDiffTyp ,

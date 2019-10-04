@@ -84,16 +84,16 @@ function fromJson($staropt$star, json) {
   }
 }
 
-function plusStyp(styp1, styp2) {
-  var match = plusTyp(styp1[/* typ */0], styp2[/* typ */0]);
-  var typ = match !== undefined ? match : plusUnion(Styp$ReactTemplate.stypToUnion(styp1), Styp$ReactTemplate.stypToUnion(styp2));
-  var o = plusO(styp1[/* o */1], styp2[/* o */1]);
-  var p = Styp$ReactTemplate.P["^"](styp1[/* p */2], styp2[/* p */2]);
-  return /* record */[
-          /* typ */typ,
-          /* o */o,
-          /* p */p
-        ];
+function plusO(o1, o2) {
+  if (o1) {
+    if (o2) {
+      return /* Opt */[Styp$ReactTemplate.P["^"](o1[0], o2[0])];
+    } else {
+      return o1;
+    }
+  } else {
+    return o2;
+  }
 }
 
 function plusTyp(_typ1, _typ2) {
@@ -323,16 +323,16 @@ function plusUnion(styps1, styps2) {
   return Styp$ReactTemplate.makeUnion(plus(styps1, styps2));
 }
 
-function plusO(o1, o2) {
-  if (o1) {
-    if (o2) {
-      return /* Opt */[Styp$ReactTemplate.P["^"](o1[0], o2[0])];
-    } else {
-      return o1;
-    }
-  } else {
-    return o2;
-  }
+function plusStyp(styp1, styp2) {
+  var match = plusTyp(styp1[/* typ */0], styp2[/* typ */0]);
+  var typ = match !== undefined ? match : plusUnion(Styp$ReactTemplate.stypToUnion(styp1), Styp$ReactTemplate.stypToUnion(styp2));
+  var o = plusO(styp1[/* o */1], styp2[/* o */1]);
+  var p = Styp$ReactTemplate.P["^"](styp1[/* p */2], styp2[/* p */2]);
+  return /* record */[
+          /* typ */typ,
+          /* o */o,
+          /* p */p
+        ];
 }
 
 var $caret = plusStyp;

@@ -42,6 +42,8 @@ and styp = {
   p,
 };
 
+let string_of_bool = b => b ? "true" : "false";
+
 let constToString = typ =>
   switch (typ) {
   | Number(x) =>
