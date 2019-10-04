@@ -100,7 +100,8 @@ let res = [testSmallDiff(0)];
 /* let res = [testSmallDiff(~mode=TypeCheck.singletonMode, 2)]; */
 /* let res = [testBigDiff()]; */
 /* let res = testSamples(); */
-let test = () => res->(testSerializer("diff"));
+// let test = () => res->(testSerializer("diff"));
+let test = () => res;
 
 /* fails: serialization of functions
    let _ = (x => x + 1) |. testSerializer("function");
