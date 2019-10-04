@@ -46,26 +46,25 @@ let constToString = typ =>
   switch (typ) {
   | Number(x) =>
     "number"
-    ++ (x |. Option.mapWithDefault("", f => ":" ++ string_of_float(f)))
-  | String(x) => "string" ++ (x |. Option.mapWithDefault("", s => ":" ++ s))
+    ++ x->(Option.mapWithDefault("", f => ":" ++ Js.Float.toString(f)))
+  | String(x) => "string" ++ x->(Option.mapWithDefault("", s => ":" ++ s))
   | Boolean(x) =>
-    "boolean"
-    ++ (x |. Option.mapWithDefault("", b => ":" ++ string_of_bool(b)))
+    "boolean" ++ x->(Option.mapWithDefault("", b => ":" ++ string_of_bool(b)))
   | _ => assert(false)
   };
 
-let rec stripDiffStyp = styp => {...styp, typ: styp.typ |. stripDiffTyp}
+let rec stripDiffStyp = styp => {...styp, typ: styp.typ->stripDiffTyp}
 and stripDiffTyp = typ =>
   switch (typ) {
   | Empty
   | Number(_)
   | String(_)
   | Boolean(_) => typ
-  | Same(typ) => Same(typ |. stripDiffTyp)
-  | Object(d) => Js.Dict.map((. styp) => stripDiffStyp(styp), d) |. Object
-  | Array(styp) => Array(styp |. stripDiffStyp)
-  | Union(styps) => styps |. List.map(stripDiffStyp) |. Union
-  | Diff(t, _, _) => t |. stripDiffTyp
+  | Same(typ) => Same(typ->stripDiffTyp)
+  | Object(d) => Js.Dict.map((. styp) => stripDiffStyp(styp), d)->Object
+  | Array(styp) => Array(styp->stripDiffStyp)
+  | Union(styps) => styps->(List.map(stripDiffStyp))->Union
+  | Diff(t, _, _) => t->stripDiffTyp
   };
 
 let typIsEmpty = typ =>
@@ -78,14 +77,14 @@ let typIsEmpty = typ =>
 let stypIsNull = (styp: styp) =>
   switch (styp.o) {
   | NotOpt => false
-  | Opt(p) => styp.typ |. typIsEmpty && styp.p == p
+  | Opt(p) => styp.typ->typIsEmpty && styp.p == p
   };
 
 let stypEmpty = {typ: Empty, o: NotOpt, p: P.zero};
 
 let stypIsEmpty = styp =>
   switch (styp) {
-  | {typ, o: NotOpt, p} when typ |. typIsEmpty && p == P.zero => true
+  | {typ, o: NotOpt, p} when typ->typIsEmpty && p == P.zero => true
   | _ => false
   };
 
@@ -99,34 +98,29 @@ let compareEntries = ((lbl1: string, _), (lbl2: string, _)) =>
   compare(lbl1, lbl2);
 
 let makeObject = arr =>
-  arr
-  |. List.fromArray
-  |. List.sort(compareEntries)
-  |. Js.Dict.fromList
-  |. Object;
+  arr->List.fromArray->(List.sort(compareEntries))->Js.Dict.fromList->Object;
 
-let compareStyp = (x: styp, y: styp) : int => compare(x, y);
-let makeUnion = styps => styps |. List.sort(compareStyp) |. Union;
+let compareStyp = (x: styp, y: styp): int => compare(x, y);
+let makeUnion = styps => styps->(List.sort(compareStyp))->Union;
 
-let pToJson = p => p |. P.toString |. Js.Json.string;
+let pToJson = p => p->P.toString->Js.Json.string;
 
-let rec stypToJson = (styp: styp) : Js.Json.t => {
+let rec stypToJson = (styp: styp): Js.Json.t => {
   let dict = Js.Dict.empty();
-  dict |. Js.Dict.set("typ", styp.typ |. typToJson);
+  dict->(Js.Dict.set("typ", styp.typ->typToJson));
   switch (styp.o) {
   | NotOpt => ()
-  | Opt(p1) => dict |. Js.Dict.set("opt", p1 |. pToJson)
+  | Opt(p1) => dict->(Js.Dict.set("opt", p1->pToJson))
   };
-  dict |. Js.Dict.set("p", styp.p |. pToJson);
-  dict |. Js.Json.object_;
+  dict->(Js.Dict.set("p", styp.p->pToJson));
+  dict->Js.Json.object_;
 }
-and typToJson = (typ: typ) : Js.Json.t => {
+and typToJson = (typ: typ): Js.Json.t => {
   open Js.Json;
-  let arr = a => a |. Js.Dict.fromArray |. object_;
+  let arr = a => a->Js.Dict.fromArray->object_;
   switch (typ) {
-  | Empty => [|("kind", "Empty" |. string)|] |. Js.Dict.fromArray |. object_
-  | Same(typ) =>
-    [|("kind", "Same" |. string), ("typ", typ |. typToJson)|] |. arr
+  | Empty => [|("kind", "Empty"->string)|]->Js.Dict.fromArray->object_
+  | Same(typ) => [|("kind", "Same"->string), ("typ", typ->typToJson)|]->arr
   | Number(_)
   | String(_)
   | Boolean(_) =>
@@ -139,36 +133,38 @@ and typToJson = (typ: typ) : Js.Json.t => {
         | _ => assert(false)
         }
       )
-      |. string;
-    [|("kind", kind), ("value", typ |. constToString |. string)|] |. arr;
+      ->string;
+    [|("kind", kind), ("value", typ->constToString->string)|]->arr;
   | Object(d) =>
     let entries =
       Js.Dict.entries(d)
-      |. Array.map(((lbl, styp)) => (lbl, styp |. stypToJson))
-      |. arr;
-    [|("kind", "Object" |. string), ("entries", entries)|] |. arr;
+      ->(Array.map(((lbl, styp)) => (lbl, styp->stypToJson)))
+      ->arr;
+    [|("kind", "Object"->string), ("entries", entries)|]->arr;
   | Array(styp) =>
-    let typ = styp |. stypToJson;
-    [|("kind", "Array" |. string), ("typ", typ)|] |. arr;
+    let typ = styp->stypToJson;
+    [|("kind", "Array"->string), ("typ", typ)|]->arr;
   | Union(styps) =>
     let entries =
       styps
-      |. List.toArray
-      |. Array.mapWithIndex((i, styp) =>
-           ("u" ++ string_of_int(i), styp |. stypToJson)
-         )
-      |. arr;
-    [|("kind", "Union" |. string), ("entries", entries)|] |. arr;
+      ->List.toArray
+      ->(
+          Array.mapWithIndex((i, styp) =>
+            ("u" ++ string_of_int(i), styp->stypToJson)
+          )
+        )
+      ->arr;
+    [|("kind", "Union"->string), ("entries", entries)|]->arr;
   | Diff(t, lhs, rhs) =>
-    let common = t |. typToJson;
-    let lhs = lhs |. stypToJson;
-    let rhs = rhs |. stypToJson;
+    let common = t->typToJson;
+    let lhs = lhs->stypToJson;
+    let rhs = rhs->stypToJson;
     [|
-      ("kind", "Diff" |. string),
+      ("kind", "Diff"->string),
       ("common", common),
       ("lhs", lhs),
       ("rhs", rhs),
     |]
-    |. arr;
+    ->arr;
   };
 };
