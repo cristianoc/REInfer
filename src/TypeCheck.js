@@ -4,9 +4,9 @@ import * as Block from "bs-platform/lib/es6/block.js";
 import * as Js_dict from "bs-platform/lib/es6/js_dict.js";
 import * as Js_json from "bs-platform/lib/es6/js_json.js";
 import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
+import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Belt_Array from "bs-platform/lib/es6/belt_Array.js";
 import * as Styp$ReactTemplate from "./Styp.js";
-import * as Belt_List$ReactTemplate from "./Belt_List.js";
 
 var defaultMode = /* record */[/* singletonTypes */false];
 
@@ -284,7 +284,7 @@ function plusUnion(styps1, styps2) {
         if (plusTyp(t[/* typ */0], t1[/* typ */0]) !== undefined) {
           return /* tuple */[
                   t1,
-                  Belt_List$ReactTemplate.concat(Belt_List$ReactTemplate.reverse(acc), ts1)
+                  Belt_List.concat(Belt_List.reverse(acc), ts1)
                 ];
         } else {
           _acc = /* :: */[

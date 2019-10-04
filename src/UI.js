@@ -3,10 +3,10 @@
 import * as React from "react";
 import * as Js_dict from "bs-platform/lib/es6/js_dict.js";
 import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
+import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Belt_Array from "bs-platform/lib/es6/belt_Array.js";
 import * as Caml_option from "bs-platform/lib/es6/caml_option.js";
 import * as Styp$ReactTemplate from "./Styp.js";
-import * as Belt_List$ReactTemplate from "./Belt_List.js";
 
 var counter = /* record */[/* contents */0];
 
@@ -231,7 +231,7 @@ function toComponentT(typ, ctx, fmt) {
                         key: String(i)
                       });
           };
-          return React.createElement("div", undefined, nodeBrown("union"), Belt_List$ReactTemplate.toArray(Belt_List$ReactTemplate.mapWithIndex(typ[0], doEntry$1)));
+          return React.createElement("div", undefined, nodeBrown("union"), Belt_List.toArray(Belt_List.mapWithIndex(typ[0], doEntry$1)));
       case /* Diff */7 :
           var rhs = typ[2];
           var lhs = typ[1];
