@@ -14,6 +14,7 @@ There is a thought experiment exploring of the use of runtime type inference in 
 ```sh
 npm install
 npm start
+npm run webpack
 # in another tab
 npm run serve
 ```

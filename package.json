@@ -8,7 +8,7 @@
     "serve": "http-server",
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack": "webpack -w",
-    "parcel": "parcel build index.html"
+    "parcel": "parcel build index-parcel.html"
   },
   "keywords": [
     "BuckleScript"

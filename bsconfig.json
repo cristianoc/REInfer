@@ -8,10 +8,10 @@
     "subdirs" : true
   },
   "package-specs": [{
-    "module": "commonjs",
+    "module": "es6",
     "in-source": true
   }],
-  "suffix": ".bs.js",
+  "suffix": ".js",
   "namespace": true,
   "bs-dependencies": [
     "reason-react"

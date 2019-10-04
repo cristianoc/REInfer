@@ -4,7 +4,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 module.exports = {
   entry: {
-    index: "./src/Index.bs.js"
+    index: "./src/Index.js"
   },
   mode: "production",
   output: {
