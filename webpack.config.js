@@ -6,9 +6,12 @@ module.exports = {
   entry: {
     index: "./src/Index.bs.js"
   },
-  mode: isProd ? "production" : "development",
+  mode: "production",
   output: {
     path: path.join(__dirname, "bundledOutputs"),
     filename: "[name].js"
+  },
+  optimization: {
+    usedExports: true
   }
 };
