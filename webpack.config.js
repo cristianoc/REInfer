@@ -8,8 +8,5 @@ module.exports = {
   output: {
     path: path.join(__dirname, "bundledOutputs"),
     filename: "[name].js"
-  },
-  optimization: {
-    usedExports: true
   }
 };
