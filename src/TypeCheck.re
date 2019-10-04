@@ -104,7 +104,7 @@ and plusUnion = (styps1, styps2) => {
     switch (ts) {
     | [t1, ...ts1] =>
       if (plusTyp(t.typ, t1.typ) != None) {
-        Some((t1, acc->Belt_List.reverse->(Belt_List.concat(ts1))));
+        Some((t1, acc->Belt.List.reverse->(Belt.List.concat(ts1))));
       } else {
         findMatch(t, ts1, [t1, ...acc]);
       }

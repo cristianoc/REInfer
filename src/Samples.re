@@ -14,7 +14,7 @@ let empty = {
   prevCommon: Styp.stypEmpty,
 };
 
-let toList = ({samples}) => samples->Belt_List.reverse;
+let toList = ({samples}) => samples->Belt.List.reverse;
 
 let getSum = ({sum}) => sum;
 
@@ -49,13 +49,13 @@ let add = (t, styp) => {
 };
 
 let addMany = (t, styps) => {
-  let styp = styps->(Belt_List.reduce(Styp.stypEmpty, TypeCheck.(++)));
+  let styp = styps->(Belt.List.reduce(Styp.stypEmpty, TypeCheck.(++)));
   t->(add(styp));
 };
 
-let fromList = styps => styps->(Belt_List.reduce(empty, add));
+let fromList = styps => styps->(Belt.List.reduce(empty, add));
 
 let getAllDiffs = t => {
   let common = t->getCommon;
-  t->toList->(Belt_List.map(styp => Diff.diff(common, styp)));
+  t->toList->(Belt.List.map(styp => Diff.diff(common, styp)));
 };

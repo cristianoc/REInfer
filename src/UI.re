@@ -182,8 +182,8 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt): React.element =>
     <div>
       "union"->nodeBrown
       {styps
-       ->(Belt_List.mapWithIndex(doEntry))
-       ->Belt_List.toArray
+       ->(Belt.List.mapWithIndex(doEntry))
+       ->Belt.List.toArray
        ->React.array}
     </div>;
 
