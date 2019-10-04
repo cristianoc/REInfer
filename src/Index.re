@@ -4,7 +4,7 @@ module Main = {
     let diffs = Demo.test();
     <div>
       {diffs
-       ->Belt.List.toArray
+       ->Belt_List.toArray
        ->(
            Belt.Array.mapWithIndex((i, diff) =>
              <div key={i->string_of_int}>

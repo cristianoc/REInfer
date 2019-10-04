@@ -132,7 +132,7 @@ and diffUnion = (styp1, styp2, styps1: list(styp), styps2: list(styp)): t => {
     switch (ts) {
     | [t1, ...ts1] =>
       if (TypeCheck.plusTyp(t.typ, t1.typ) != None) {
-        Some((t1, acc->Belt.List.reverse->(Belt.List.concat(ts1))));
+        Some((t1, acc->Belt_List.reverse->(Belt_List.concat(ts1))));
       } else {
         findMatch(t, ts1, [t1, ...acc]);
       }
@@ -158,17 +158,17 @@ and diffUnion = (styp1, styp2, styps1: list(styp), styps2: list(styp)): t => {
     };
   let {stypUA1, stypUA2, stypUB} = plus(styps1, styps2);
   let toUnion = styps =>
-    switch (styps->(Belt.List.keep(styp => !stypIsEmpty(styp)))) {
+    switch (styps->(Belt_List.keep(styp => !stypIsEmpty(styp)))) {
     | [] => Empty
     | [styp] => styp.typ
     | styps1 => styps1->makeUnion
     };
   let toStyp = stypU => {
     let typ = stypU->toUnion;
-    let p = stypU->(Belt.List.reduce(P.zero, (p, styp) => p->(P.(++)(styp.p))));
+    let p = stypU->(Belt_List.reduce(P.zero, (p, styp) => p->(P.(++)(styp.p))));
     let o =
       stypU->(
-               Belt.List.reduce(NotOpt, (o, styp) => o->(TypeCheck.plusO(styp.o)))
+               Belt_List.reduce(NotOpt, (o, styp) => o->(TypeCheck.plusO(styp.o)))
              );
     {typ, o, p};
   };

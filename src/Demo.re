@@ -49,8 +49,8 @@ let testSmallDiff = (~mode=TypeCheck.defaultMode, n) => {
 let testSamples = (~mode=TypeCheck.defaultMode, ()) => {
   let styps =
     [{| {"x": 1, "y":"hello"} |}, {| {"x": 2} |}, {| {"x": 3, "y":null} |}]
-    ->(Belt.List.map(Js.Json.parseExn))
-    ->(Belt.List.map(TypeCheck.fromJson(~mode)));
+    ->(Belt_List.map(Js.Json.parseExn))
+    ->(Belt_List.map(TypeCheck.fromJson(~mode)));
   Samples.(styps->fromList->getAllDiffs);
 };
 

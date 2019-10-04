@@ -3,10 +3,10 @@
 import * as Block from "bs-platform/lib/es6/block.js";
 import * as Js_dict from "bs-platform/lib/es6/js_dict.js";
 import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
-import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Belt_Array from "bs-platform/lib/es6/belt_Array.js";
 import * as Belt_Option from "bs-platform/lib/es6/belt_Option.js";
 import * as Caml_primitive from "bs-platform/lib/es6/caml_primitive.js";
+import * as Belt_List$ReactTemplate from "./Belt_List.js";
 import * as Caml_builtin_exceptions from "bs-platform/lib/es6/caml_builtin_exceptions.js";
 
 function $caret(prim, prim$1) {
@@ -103,7 +103,7 @@ function stripDiffTyp(_typ) {
         case /* Array */5 :
             return /* Array */Block.__(5, [stripDiffStyp(typ[0])]);
         case /* Union */6 :
-            return /* Union */Block.__(6, [Belt_List.map(typ[0], stripDiffStyp)]);
+            return /* Union */Block.__(6, [Belt_List$ReactTemplate.map(typ[0], stripDiffStyp)]);
         case /* Diff */7 :
             _typ = typ[0];
             continue ;
@@ -162,13 +162,13 @@ function compareEntries(param, param$1) {
 }
 
 function makeObject(arr) {
-  return /* Object */Block.__(4, [Js_dict.fromList(Belt_List.sort(Belt_List.fromArray(arr), compareEntries))]);
+  return /* Object */Block.__(4, [Js_dict.fromList(Belt_List$ReactTemplate.sort(Belt_List$ReactTemplate.fromArray(arr), compareEntries))]);
 }
 
 var compareStyp = Caml_obj.caml_compare;
 
 function makeUnion(styps) {
-  return /* Union */Block.__(6, [Belt_List.sort(styps, compareStyp)]);
+  return /* Union */Block.__(6, [Belt_List$ReactTemplate.sort(styps, compareStyp)]);
 }
 
 function pToJson(p) {
@@ -235,7 +235,7 @@ function typToJson(typ) {
                       ]
                     ]);
       case /* Union */6 :
-          var entries$1 = Js_dict.fromArray(Belt_Array.mapWithIndex(Belt_List.toArray(typ[0]), (function (i, styp) {
+          var entries$1 = Js_dict.fromArray(Belt_Array.mapWithIndex(Belt_List$ReactTemplate.toArray(typ[0]), (function (i, styp) {
                       return /* tuple */[
                               "u" + String(i),
                               stypToJson(styp)

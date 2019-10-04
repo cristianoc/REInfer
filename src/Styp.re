@@ -64,7 +64,7 @@ and stripDiffTyp = typ =>
   | Same(typ) => Same(typ->stripDiffTyp)
   | Object(d) => Js.Dict.map((. styp) => stripDiffStyp(styp), d)->Object
   | Array(styp) => Array(styp->stripDiffStyp)
-  | Union(styps) => styps->(Belt.List.map(stripDiffStyp))->Union
+  | Union(styps) => styps->(Belt_List.map(stripDiffStyp))->Union
   | Diff(t, _, _) => t->stripDiffTyp
   };
 
@@ -100,13 +100,13 @@ let compareEntries = ((lbl1: string, _), (lbl2: string, _)) =>
 
 let makeObject = arr =>
   arr
-  ->Belt.List.fromArray
-  ->(Belt.List.sort(compareEntries))
+  ->Belt_List.fromArray
+  ->(Belt_List.sort(compareEntries))
   ->Js.Dict.fromList
   ->Object;
 
 let compareStyp = (x: styp, y: styp): int => compare(x, y);
-let makeUnion = styps => styps->(Belt.List.sort(compareStyp))->Union;
+let makeUnion = styps => styps->(Belt_List.sort(compareStyp))->Union;
 
 let pToJson = p => p->P.toString->Js.Json.string;
 
@@ -152,7 +152,7 @@ and typToJson = (typ: typ): Js.Json.t => {
   | Union(styps) =>
     let entries =
       styps
-      ->Belt.List.toArray
+      ->Belt_List.toArray
       ->(
           Belt.Array.mapWithIndex((i, styp) =>
             ("u" ++ string_of_int(i), styp->stypToJson)

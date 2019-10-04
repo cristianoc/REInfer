@@ -3,10 +3,10 @@
 import * as Block from "bs-platform/lib/es6/block.js";
 import * as Js_dict from "bs-platform/lib/es6/js_dict.js";
 import * as Caml_obj from "bs-platform/lib/es6/caml_obj.js";
-import * as Belt_List from "bs-platform/lib/es6/belt_List.js";
 import * as Belt_Array from "bs-platform/lib/es6/belt_Array.js";
 import * as Belt_SetString from "bs-platform/lib/es6/belt_SetString.js";
 import * as Styp$ReactTemplate from "./Styp.js";
+import * as Belt_List$ReactTemplate from "./Belt_List.js";
 import * as Caml_builtin_exceptions from "bs-platform/lib/es6/caml_builtin_exceptions.js";
 import * as TypeCheck$ReactTemplate from "./TypeCheck.js";
 
@@ -356,7 +356,7 @@ function diffUnion(styp1, styp2, styps1, styps2) {
         if (TypeCheck$ReactTemplate.plusTyp(t[/* typ */0], t1[/* typ */0]) !== undefined) {
           return /* tuple */[
                   t1,
-                  Belt_List.concat(Belt_List.reverse(acc), ts1)
+                  Belt_List$ReactTemplate.concat(Belt_List$ReactTemplate.reverse(acc), ts1)
                 ];
         } else {
           _acc = /* :: */[
@@ -415,7 +415,7 @@ function diffUnion(styp1, styp2, styps1, styps2) {
   };
   var match = plus(styps1, styps2);
   var toUnion = function (styps) {
-    var styps1 = Belt_List.keep(styps, (function (styp) {
+    var styps1 = Belt_List$ReactTemplate.keep(styps, (function (styp) {
             return !Styp$ReactTemplate.stypIsEmpty(styp);
           }));
     if (styps1) {
@@ -430,10 +430,10 @@ function diffUnion(styp1, styp2, styps1, styps2) {
   };
   var toStyp = function (stypU) {
     var typ = toUnion(stypU);
-    var p = Belt_List.reduce(stypU, Styp$ReactTemplate.P.zero, (function (p, styp) {
+    var p = Belt_List$ReactTemplate.reduce(stypU, Styp$ReactTemplate.P.zero, (function (p, styp) {
             return Styp$ReactTemplate.P["^"](p, styp[/* p */2]);
           }));
-    var o = Belt_List.reduce(stypU, /* NotOpt */0, (function (o, styp) {
+    var o = Belt_List$ReactTemplate.reduce(stypU, /* NotOpt */0, (function (o, styp) {
             return TypeCheck$ReactTemplate.plusO(o, styp[/* o */1]);
           }));
     return /* record */[
