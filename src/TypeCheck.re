@@ -1,4 +1,3 @@
-open Belt;
 open Styp;
 
 type mode = {singletonTypes: bool};
@@ -35,14 +34,14 @@ let rec fromJson = (~mode=defaultMode, json: Js.Json.t): styp =>
       (lbl, styp);
     };
     {
-      typ: Js.Dict.entries(dict)->(Array.map(do_entry))->makeObject,
+      typ: Js.Dict.entries(dict)->(Belt.Array.map(do_entry))->makeObject,
       o: NotOpt,
       p: P.one,
     };
   | JSONArray(a) =>
     a
     ->(
-        Array.reduce({typ: Empty, o: NotOpt, p: P.zero}, (styp, json) =>
+        Belt.Array.reduce({typ: Empty, o: NotOpt, p: P.zero}, (styp, json) =>
           styp ++ fromJson(~mode, json)
         )
       )
@@ -85,8 +84,8 @@ and plusTyp = (typ1, typ2): option(typ) =>
       | None => d->(Js.Dict.set(lbl, styp))
       | Some(styp1) => d->(Js.Dict.set(lbl, styp ++ styp1))
       };
-    d1->Js.Dict.entries->(Array.forEach(doItem));
-    d2->Js.Dict.entries->(Array.forEach(doItem));
+    d1->Js.Dict.entries->(Belt.Array.forEach(doItem));
+    d2->Js.Dict.entries->(Belt.Array.forEach(doItem));
     d->Js.Dict.entries->makeObject->Some;
   | (Array(styp1), Array(styp2)) => (styp1 ++ styp2)->Array->Some
   | (Number(_), _)
@@ -105,7 +104,7 @@ and plusUnion = (styps1, styps2) => {
     switch (ts) {
     | [t1, ...ts1] =>
       if (plusTyp(t.typ, t1.typ) != None) {
-        Some((t1, acc->List.reverse->(List.concat(ts1))));
+        Some((t1, acc->Belt.List.reverse->(Belt.List.concat(ts1))));
       } else {
         findMatch(t, ts1, [t1, ...acc]);
       }

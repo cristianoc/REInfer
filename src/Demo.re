@@ -1,4 +1,3 @@
-open Belt;
 let testSmall = () => {
   let small = Js.Json.parseExn({| [{"name":null} ] |});
 
@@ -32,13 +31,13 @@ let testSmallDiff = (~mode=TypeCheck.defaultMode, n) => {
   |];
   let styp1 =
     examples
-    ->(Array.getExn(n))
+    ->(Belt.Array.getExn(n))
     ->fst
     ->Js.Json.parseExn
     ->(TypeCheck.fromJson(~mode));
   let styp2 =
     examples
-    ->(Array.getExn(n))
+    ->(Belt.Array.getExn(n))
     ->snd
     ->Js.Json.parseExn
     ->(TypeCheck.fromJson(~mode));
@@ -50,8 +49,8 @@ let testSmallDiff = (~mode=TypeCheck.defaultMode, n) => {
 let testSamples = (~mode=TypeCheck.defaultMode, ()) => {
   let styps =
     [{| {"x": 1, "y":"hello"} |}, {| {"x": 2} |}, {| {"x": 3, "y":null} |}]
-    ->(List.map(Js.Json.parseExn))
-    ->(List.map(TypeCheck.fromJson(~mode)));
+    ->(Belt.List.map(Js.Json.parseExn))
+    ->(Belt.List.map(TypeCheck.fromJson(~mode)));
   Samples.(styps->fromList->getAllDiffs);
 };
 

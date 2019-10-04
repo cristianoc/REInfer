@@ -1,4 +1,3 @@
-open Belt;
 open Styp;
 
 module Key = {
@@ -151,7 +150,7 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt): React.element =>
         />
       </span>;
 
-    React.array(Js.Dict.entries(d)->(Array.mapWithIndex(doEntry)));
+    React.array(Js.Dict.entries(d)->(Belt.Array.mapWithIndex(doEntry)));
   | Array(styp) when stypIsEmpty(styp) =>
     <span>
       {node("[")->(addDecorator(~styp, ~right=false, ~ctx, ~fmt))}
@@ -182,7 +181,10 @@ and toComponentT = (typ: typ, ~ctx: p, ~fmt: fmt): React.element =>
 
     <div>
       "union"->nodeBrown
-      {styps->(List.mapWithIndex(doEntry))->List.toArray->React.array}
+      {styps
+       ->(Belt.List.mapWithIndex(doEntry))
+       ->Belt.List.toArray
+       ->React.array}
     </div>;
 
   | Diff(t, lhs, rhs) =>

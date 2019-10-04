@@ -126,7 +126,7 @@ function testSerializer(o, testName) {
           Caml_builtin_exceptions.assert_failure,
           /* tuple */[
             "Demo.re",
-            94,
+            93,
             4
           ]
         ];

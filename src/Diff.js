@@ -339,7 +339,7 @@ function diffTyp(typ1, typ2) {
         Caml_builtin_exceptions.assert_failure,
         /* tuple */[
           "Diff.re",
-          128,
+          127,
           21
         ]
       ];
@@ -591,7 +591,7 @@ function diffCheck(styp1, styp2) {
           Caml_builtin_exceptions.assert_failure,
           /* tuple */[
             "Diff.re",
-            247,
+            246,
             2
           ]
         ];
@@ -601,7 +601,7 @@ function diffCheck(styp1, styp2) {
           Caml_builtin_exceptions.assert_failure,
           /* tuple */[
             "Diff.re",
-            248,
+            247,
             2
           ]
         ];

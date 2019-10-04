@@ -1,4 +1,3 @@
-open Belt;
 open Styp;
 
 type diffStyp = {
@@ -95,8 +94,8 @@ and diffTyp = (typ1: typ, typ2: typ): diffTyp => {
         }
       | Some(_) => ()
       };
-    d2->Js.Dict.entries->(Array.forEach(doItem2));
-    d1->Js.Dict.entries->(Array.forEach(doItem1));
+    d2->Js.Dict.entries->(Belt.Array.forEach(doItem2));
+    d1->Js.Dict.entries->(Belt.Array.forEach(doItem1));
     let entries1 = dA1->Js.Dict.entries;
     let entries2 = dA2->Js.Dict.entries;
     let typA1 = {
@@ -133,7 +132,7 @@ and diffUnion = (styp1, styp2, styps1: list(styp), styps2: list(styp)): t => {
     switch (ts) {
     | [t1, ...ts1] =>
       if (TypeCheck.plusTyp(t.typ, t1.typ) != None) {
-        Some((t1, acc->List.reverse->(List.concat(ts1))));
+        Some((t1, acc->Belt.List.reverse->(Belt.List.concat(ts1))));
       } else {
         findMatch(t, ts1, [t1, ...acc]);
       }
@@ -159,17 +158,17 @@ and diffUnion = (styp1, styp2, styps1: list(styp), styps2: list(styp)): t => {
     };
   let {stypUA1, stypUA2, stypUB} = plus(styps1, styps2);
   let toUnion = styps =>
-    switch (styps->(List.keep(styp => !stypIsEmpty(styp)))) {
+    switch (styps->(Belt.List.keep(styp => !stypIsEmpty(styp)))) {
     | [] => Empty
     | [styp] => styp.typ
     | styps1 => styps1->makeUnion
     };
   let toStyp = stypU => {
     let typ = stypU->toUnion;
-    let p = stypU->(List.reduce(P.zero, (p, styp) => p->(P.(++)(styp.p))));
+    let p = stypU->(Belt.List.reduce(P.zero, (p, styp) => p->(P.(++)(styp.p))));
     let o =
       stypU->(
-               List.reduce(NotOpt, (o, styp) => o->(TypeCheck.plusO(styp.o)))
+               Belt.List.reduce(NotOpt, (o, styp) => o->(TypeCheck.plusO(styp.o)))
              );
     {typ, o, p};
   };
@@ -224,7 +223,7 @@ and combineTyp = (typA1: typ, typA2: typ, typB: typ): typ =>
            )
          );
     };
-    Set.String.(
+    Belt.Set.String.(
       dictA1
       ->Js.Dict.keys
       ->fromArray

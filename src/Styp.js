@@ -48,7 +48,7 @@ function constToString(typ) {
           Caml_builtin_exceptions.assert_failure,
           /* tuple */[
             "Styp.re",
-            55,
+            54,
             9
           ]
         ];
@@ -73,7 +73,7 @@ function constToString(typ) {
               Caml_builtin_exceptions.assert_failure,
               /* tuple */[
                 "Styp.re",
-                55,
+                54,
                 9
               ]
             ];
@@ -280,7 +280,7 @@ function typToJson(typ) {
                 Caml_builtin_exceptions.assert_failure,
                 /* tuple */[
                   "Styp.re",
-                  135,
+                  138,
                   15
                 ]
               ];
@@ -300,7 +300,7 @@ function typToJson(typ) {
                     Caml_builtin_exceptions.assert_failure,
                     /* tuple */[
                       "Styp.re",
-                      135,
+                      138,
                       15
                     ]
                   ];
