@@ -16,7 +16,7 @@ let empty = {
   prevCommon: Styp.stypEmpty,
 };
 
-let toList = ({samples}) => samples |. List.reverse;
+let toList = ({samples}) => samples->List.reverse;
 
 let getSum = ({sum}) => sum;
 
@@ -45,19 +45,19 @@ let add = (t, styp) => {
   let sum = TypeCheck.(++)(t.sum, styp);
   let prevCommon = t.common;
   let common =
-    t.samples == [] ?
-      styp : Diff.diff(t.common, styp).stypB |. Styp.stripDiffStyp;
+    t.samples == []
+      ? styp : Diff.diff(t.common, styp).stypB->Styp.stripDiffStyp;
   {samples, sum, prevSum, common, prevCommon};
 };
 
 let addMany = (t, styps) => {
-  let styp = styps |. List.reduce(Styp.stypEmpty, TypeCheck.(++));
-  t |. add(styp);
+  let styp = styps->(List.reduce(Styp.stypEmpty, TypeCheck.(++)));
+  t->(add(styp));
 };
 
-let fromList = styps => styps |. List.reduce(empty, add);
+let fromList = styps => styps->(List.reduce(empty, add));
 
 let getAllDiffs = t => {
-  let common = t |. getCommon;
-  t |. toList |. List.map(styp => Diff.diff(common, styp));
+  let common = t->getCommon;
+  t->toList->(List.map(styp => Diff.diff(common, styp)));
 };

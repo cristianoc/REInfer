@@ -9,7 +9,7 @@ let empty = () => {json: Js.Json.null, styp: ref(stypEmpty)};
 
 let log = x => {
   Js.log2("json:", x.json);
-  Js.log2("styp:", x.styp^ |. stypToJson |. Js.Json.stringify);
+  Js.log2("styp:", (x.styp^)->stypToJson->Js.Json.stringify);
 };
 
 let assignJson = (x, json) => {
@@ -28,7 +28,7 @@ let getFld = (x, fld) => {
   let styp1 =
     switch (x.styp^.typ) {
     | Styp.Object(dict) =>
-      let styp1 = dict |. Js.Dict.unsafeGet(fld);
+      let styp1 = dict->(Js.Dict.unsafeGet(fld));
       let stypP = x.styp^.p;
       let styp1P = styp1.p;
       let stypOP =
@@ -47,9 +47,9 @@ let getFld = (x, fld) => {
     | _ => assert(false)
     };
   let json =
-    switch (x.json |. Js.Json.decodeObject) {
+    switch (x.json->Js.Json.decodeObject) {
     | None => assert(false)
-    | Some(dict) => dict |. Js.Dict.unsafeGet(fld)
+    | Some(dict) => dict->(Js.Dict.unsafeGet(fld))
     };
   {json, styp: ref(styp1)};
 };
@@ -82,11 +82,11 @@ let (==) = (x, y) => {
   };
 };
 
-let (!=) = (x, y) => ! (x == y);
+let (!=) = (x, y) => !(x == y);
 
 let ref = json => {
   let x = empty();
-  x |. assignJson(json);
+  x->(assignJson(json));
   x;
 };
 

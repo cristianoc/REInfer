@@ -3,10 +3,10 @@ let testSmall = () => {
   let small = Js.Json.parseExn({| [{"name":null} ] |});
 
   let styp = TypeCheck.fromJson(small);
-  Js.log(styp |. Styp.stypToJson |. Js.Json.stringify);
+  Js.log(styp->Styp.stypToJson->Js.Json.stringify);
 };
 
-let logDiff = diff => Js.log(diff |. Diff.toJson |. Js.Json.stringify);
+let logDiff = diff => Js.log(diff->Diff.toJson->Js.Json.stringify);
 
 let testSmallDiff = (~mode=TypeCheck.defaultMode, n) => {
   let examples = [|
@@ -32,16 +32,16 @@ let testSmallDiff = (~mode=TypeCheck.defaultMode, n) => {
   |];
   let styp1 =
     examples
-    |. Array.getExn(n)
-    |. fst
-    |. Js.Json.parseExn
-    |. TypeCheck.fromJson(~mode);
+    ->(Array.getExn(n))
+    ->fst
+    ->Js.Json.parseExn
+    ->(TypeCheck.fromJson(~mode));
   let styp2 =
     examples
-    |. Array.getExn(n)
-    |. snd
-    |. Js.Json.parseExn
-    |. TypeCheck.fromJson(~mode);
+    ->(Array.getExn(n))
+    ->snd
+    ->Js.Json.parseExn
+    ->(TypeCheck.fromJson(~mode));
   let diff = Diff.diffCheck(styp1, styp2);
   logDiff(diff);
   diff;
@@ -50,9 +50,9 @@ let testSmallDiff = (~mode=TypeCheck.defaultMode, n) => {
 let testSamples = (~mode=TypeCheck.defaultMode, ()) => {
   let styps =
     [{| {"x": 1, "y":"hello"} |}, {| {"x": 2} |}, {| {"x": 3, "y":null} |}]
-    |. List.map(Js.Json.parseExn)
-    |. List.map(TypeCheck.fromJson(~mode));
-  Samples.(styps |. fromList |. getAllDiffs);
+    ->(List.map(Js.Json.parseExn))
+    ->(List.map(TypeCheck.fromJson(~mode)));
+  Samples.(styps->fromList->getAllDiffs);
 };
 
 /* let testBigDiff = () => {
@@ -100,7 +100,7 @@ let res = [testSmallDiff(0)];
 /* let res = [testSmallDiff(~mode=TypeCheck.singletonMode, 2)]; */
 /* let res = [testBigDiff()]; */
 /* let res = testSamples(); */
-let test = () => res |. testSerializer("diff");
+let test = () => res->(testSerializer("diff"));
 
 /* fails: serialization of functions
    let _ = (x => x + 1) |. testSerializer("function");

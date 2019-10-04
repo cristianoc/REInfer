@@ -8,19 +8,19 @@ module Main = {
     render: _self => {
       let diffs = Demo.test();
       <div>
-        (
-          diffs
-          |. List.toArray
-          |. Array.mapWithIndex((i, diff) =>
-               <div key=(i |. string_of_int)>
+        {diffs
+         ->List.toArray
+         ->(
+             Array.mapWithIndex((i, diff) =>
+               <div key={i->string_of_int}>
                  <h3>
-                   (ReasonReact.string("Sample " ++ string_of_int(i)))
+                   {ReasonReact.string("Sample " ++ string_of_int(i))}
                  </h3>
                  <UI.Diff diff />
                </div>
              )
-          |. ReasonReact.array
-        )
+           )
+         ->ReasonReact.array}
       </div>;
     },
   };
