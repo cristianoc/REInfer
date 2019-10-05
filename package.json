@@ -6,11 +6,11 @@
     "start": "bsb -make-world -w -ws _ ",
     "clean": "bsb -clean-world",
     "serve": "http-server",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "webpack": "webpack",
-    "parcel": "parcel build index-parcel.html --no-source-maps",
+    "parcel": "parcel build index-parcel.html --no-source-maps --out-dir bundledOutputs",
     "rollup": "rollup -c rollup.config.browser.js",
-    "fastpack": "fpack build -o bundledOutputs -n fastpack.js --dev"
+    "fastpack": "fpack build -o bundledOutputs -n fastpack.js --dev",
+    "test": "rm -rf .cache && time yarn webpack && time yarn parcel && time yarn rollup && time yarn webpack && wc bundledOutputs/*"
   },
   "keywords": [
     "BuckleScript"
