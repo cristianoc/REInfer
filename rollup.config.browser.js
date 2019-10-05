@@ -7,7 +7,7 @@ export default {
   input: "src/Index.js",
   output: {
     file: "bundledOutputs/rollup.js",
-    format: "umd",
+    format: "iife",
     name: "main"
   },
   plugins: [
