@@ -9,8 +9,8 @@
     "webpack": "webpack",
     "parcel": "parcel build index-parcel.html --no-source-maps --out-dir bundledOutputs",
     "rollup": "rollup -c rollup.config.browser.js",
-    "fastpack": "fpack build -o bundledOutputs -n fastpack.js --dev",
-    "test": "rm -rf .cache && time yarn webpack && time yarn parcel && time yarn rollup && time yarn webpack && wc bundledOutputs/*"
+    "fastpack": "fpack build -o bundledOutputs -n fastpack.js --dev --no-cache",
+    "test": "rm -rf .cache && time yarn webpack && time yarn parcel && time yarn rollup && time node_modules/fastpack/fpack.exe build -o bundledOutputs -n fastpack.js --dev --no-cache && wc bundledOutputs/*"
   },
   "keywords": [
     "BuckleScript"
