@@ -7,9 +7,10 @@
     "clean": "bsb -clean-world",
     "serve": "http-server",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack": "webpack -w",
+    "webpack": "webpack",
     "parcel": "parcel build index-parcel.html --no-source-maps",
-    "rollup": "rollup -c rollup.config.browser.js"
+    "rollup": "rollup -c rollup.config.browser.js",
+    "fastpack": "fpack build -o bundledOutputs -n fastpack.js --dev"
   },
   "keywords": [
     "BuckleScript"
@@ -29,6 +30,7 @@
     "@babel/preset-react": "^7.0.0-beta.54",
     "babel-loader": "^8.0.0-beta.4",
     "bs-platform": "^6.2.0",
+    "fastpack": "^0.9.1",
     "parcel-bundler": "^1.12.3",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
