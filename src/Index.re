@@ -1,21 +1,10 @@
-module Main = {
-  [@react.component]
-  let make = () => {
-    let diffs = Demo.test();
-    <div>
-      {diffs
-       ->Belt.List.toArray
-       ->(
-           Belt.Array.mapWithIndex((i, diff) =>
-             <div key={i->string_of_int}>
-               <h3> {React.string("Sample " ++ string_of_int(i))} </h3>
-               <UI.Diff diff />
-             </div>
-           )
-         )
-       ->React.array}
-    </div>;
-  };
-};
+Js.log("hello");
 
-ReactDOMRe.renderToElementWithId(<Main />, "main");
+let f0 = () => Js.log("f0");
+let f1 = () => f0();
+let f2 = () => f1();
+let f3 = () => f2();
+let f4 = () => f3();
+let f5 = () => f4();
+let f6 = () => f5();
+let f7 = () => f6();
